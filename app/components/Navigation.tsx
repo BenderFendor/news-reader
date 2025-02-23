@@ -18,7 +18,7 @@ const Navigation: FC<NavigationProps> = ({
     <nav className="bg-white dark:bg-amoled shadow-md fixed top-0 left-0 right-0 z-50">
       <div className="container mx-auto px-4">
         <div className="flex justify-between items-center h-16">
-          <h1 className="text-2xl font-bold text-gray-800 dark:text-white">NewsReader</h1>
+          <h1 className="text-2xl font-bold text-gray-800 dark:text-white">Scoop</h1>
           <div className="flex items-center space-x-4">
             <button
               onClick={() => setViewMode("grid")}

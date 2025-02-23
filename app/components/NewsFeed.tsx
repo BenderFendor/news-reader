@@ -1,61 +1,27 @@
 "use client"
 
-import { type FC, useState, useEffect } from "react"
+import { type FC } from "react"
 import Article from "./Article"
+import { useFeedData } from "@/hooks/use-feed-data"
 
 interface NewsFeedProps {
   feeds: { url: string; category: string }[]
 }
 
-interface FeedItem {
-  title: string
-  link: string
-  description: string
-  pubDate: string
-  enclosure?: {
-    url: string
-    type: string
-  }
-  source: string
-  category: string
-}
-
-interface FeedError {
-  url: string
-  error: string
-}
-
 const NewsFeed: FC<NewsFeedProps> = ({ feeds }) => {
-  const [articles, setArticles] = useState<FeedItem[]>([])
-  const [errors, setErrors] = useState<FeedError[]>([])
-  const [loading, setLoading] = useState(true)
+  const { articles, errors, loading, isDataReady } = useFeedData(feeds)
 
-  useEffect(() => {
-    const fetchFeeds = async () => {
-      setLoading(true)
-      try {
-        const response = await fetch(`/api/fetchFeeds?feeds=${encodeURIComponent(JSON.stringify(feeds))}`)
-        if (!response.ok) {
-          throw new Error(`HTTP error! status: ${response.status}`)
-        }
-        const data = await response.json()
-        if (data.error) {
-          throw new Error(data.error)
-        }
-        setArticles(data.items)
-        setErrors(data.errors)
-      } catch (error) {
-        console.error("Error fetching feeds:", error)
-        setErrors([{ url: "all", error: (error as Error).message }])
-      }
-      setLoading(false)
-    }
-
-    fetchFeeds()
-  }, [feeds])
-
-  if (loading) {
-    return <div className="flex justify-center items-center h-screen">Loading...</div>
+  if (!isDataReady) {
+    return (
+      <div className="snap-y snap-mandatory h-screen overflow-y-scroll bg-gray-100 dark:bg-amoled">
+        <div className="snap-start h-screen flex items-center justify-center">
+          <div className="flex flex-col items-center space-y-4">
+            <div className="w-12 h-12 border-4 border-primary border-t-transparent rounded-full animate-spin" />
+            <p className="text-muted-foreground">Loading articles...</p>
+          </div>
+        </div>
+      </div>
+    )
   }
 
   if (errors.length > 0 && articles.length === 0) {

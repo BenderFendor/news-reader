@@ -46,58 +46,82 @@ async function fetchWithRetry(url: string, maxRetries = 3): Promise<Response> {
   throw new Error('Max retries reached')
 }
 
+// Add image URL cache at module level
+const imageUrlCache = new Map<string, string>();
+
 const Article: FC<ArticleProps> = ({ article, isGridView = false, isTikTokStyle = false }) => {
-  const [fallbackImage, setFallbackImage] = useState<string | null>(null)
-  const [imageUrl, setImageUrl] = useState<string>("/placeholder.svg")
+  const [fallbackImage, setFallbackImage] = useState<string | null>(null);
+  const [imageUrl, setImageUrl] = useState<string>("/placeholder.svg");
 
   const getImageUrl = async () => {
+    // Check cache first
+    if (imageUrlCache.has(article.link)) {
+      console.log(`[Image Cache] Hit for article: ${article.link}`);
+      return imageUrlCache.get(article.link);
+    }
+
+    console.log(`[Image Fetch] Starting fetch for article: ${article.link}`);
     try {
       // Try the RSS feed image sources first
       if (article.enclosure?.url && article.enclosure.type?.startsWith("image/")) {
-        return article.enclosure.url
+        console.log(`[Image Source] Using enclosure URL: ${article.enclosure.url}`);
+        imageUrlCache.set(article.link, article.enclosure.url);
+        return article.enclosure.url;
       }
       if (article.enclosure?.["@_url"] && article.enclosure?.["@_type"]?.startsWith("image/")) {
-        return article.enclosure["@_url"]
+        console.log(`[Image Source] Using enclosure @_url: ${article.enclosure["@_url"]}`);
+        imageUrlCache.set(article.link, article.enclosure["@_url"]);
+        return article.enclosure["@_url"];
       }
       if (article["media:content"]?.["@_url"] && article["media:content"]?.["@_type"]?.startsWith("image/")) {
-        return article["media:content"]["@_url"]
+        console.log(`[Image Source] Using media:content URL: ${article["media:content"]["@_url"]}`);
+        imageUrlCache.set(article.link, article["media:content"]["@_url"]);
+        return article["media:content"]["@_url"];
       }
 
       // More careful handling of description parsing
-      const description = article.description
+      const description = article.description;
       if (description && typeof description === 'string') {
         try {
-          const imgMatch = description.match(/<img[^>]+src="([^">]+)"/)
+          const imgMatch = description.match(/<img[^>]+src="([^"]+)"/i);
           if (imgMatch && imgMatch[1]) {
-            return imgMatch[1]
+            console.log(`[Image Source] Extracted from description: ${imgMatch[1]}`);
+            imageUrlCache.set(article.link, imgMatch[1]);
+            return imgMatch[1];
           }
         } catch (e) {
-          console.error('Error parsing description for images:', e)
+          console.error('[Image Parse] Error parsing description for images:', e);
         }
       }
 
       // If no image found in RSS, try fetching from article
       if (!fallbackImage) {
+        console.log(`[Image Fetch] Attempting to fetch from article URL: ${article.link}`);
         try {
           const response = await fetchWithRetry(
             `/api/fetchArticleImage?url=${encodeURIComponent(article.link)}`
-          )
-          const data = await response.json()
+          );
+          const data = await response.json();
           if (data.imageUrl) {
-            setFallbackImage(data.imageUrl)
-            return data.imageUrl
+            console.log(`[Image Fetch] Successfully fetched image from article: ${data.imageUrl}`);
+            setFallbackImage(data.imageUrl);
+            imageUrlCache.set(article.link, data.imageUrl);
+            return data.imageUrl;
           }
         } catch (error) {
-          console.error('Error fetching article image:', error)
+          console.error('[Image Fetch] Error fetching article image:', error);
         }
       }
 
-      return "/placeholder.svg"
+      console.log('[Image Fetch] No image found, using placeholder');
+      imageUrlCache.set(article.link, "/placeholder.svg");
+      return "/placeholder.svg";
     } catch (error) {
-      console.error('Error in getImageUrl:', error)
-      return "/placeholder.svg"
+      console.error('[Image Fetch] Error in getImageUrl:', error);
+      imageUrlCache.set(article.link, "/placeholder.svg");
+      return "/placeholder.svg";
     }
-  }
+  };
 
   useEffect(() => {
     let mounted = true

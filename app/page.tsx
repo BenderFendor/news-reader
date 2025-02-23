@@ -12,6 +12,11 @@ interface Feed {
   category: string
 }
 
+interface FeedError {
+  url: string
+  error: string
+}
+
 const feed: Feed[] = [
   { url: "https://972mag.com/feed/", category: "972mag.com" },
   { url: "https://ngo-monitor.org/feed/", category: "ngo_monitor.org" },
@@ -44,6 +49,8 @@ export default function Home() {
   const [viewMode, setViewMode] = useState<"grid" | "tiktok">("grid")
   const [isAddFeedModalOpen, setIsAddFeedModalOpen] = useState(false)
   const [isSourcesListOpen, setIsSourcesListOpen] = useState(false)
+  const [feedErrors, setFeedErrors] = useState<FeedError[]>([])
+  const [isLoading, setIsLoading] = useState(false)
 
   useEffect(() => {
     setFeeds(feed)
@@ -61,6 +68,33 @@ export default function Home() {
     setFeeds(updatedFeeds)
     localStorage.setItem("rssFeeds", JSON.stringify(updatedFeeds))
   }
+
+  // Set loading and error states whenever feeds are fetched
+  useEffect(() => {
+    const fetchFeeds = async () => {
+      setIsLoading(true)
+      setFeedErrors([])
+      try {
+        const response = await fetch(`/api/fetchFeeds?feeds=${encodeURIComponent(JSON.stringify(feeds))}`)
+        if (!response.ok) {
+          throw new Error(`HTTP error! status: ${response.status}`)
+        }
+        const data = await response.json()
+        if (data.errors?.length) {
+          setFeedErrors(data.errors)
+        }
+      } catch (error) {
+        console.error("Error fetching feeds:", error)
+        setFeedErrors([{ url: "all", error: (error as Error).message }])
+      } finally {
+        setIsLoading(false)
+      }
+    }
+
+    if (feeds.length > 0) {
+      fetchFeeds()
+    }
+  }, [feeds])
 
   return (
     <main className="min-h-screen bg-amoled flex flex-col">
@@ -83,6 +117,8 @@ export default function Home() {
           feeds={feeds} 
           onClose={() => setIsSourcesListOpen(false)} 
           onRemoveFeed={removeFeed} 
+          errors={feedErrors}
+          loading={isLoading}
         />
       )}
     </main>
