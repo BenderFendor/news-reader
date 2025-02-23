@@ -1,7 +1,7 @@
 "use client"
 
 // Import necessary components and hooks
-import { type FC } from "react"
+import { type FC, useEffect, useRef, useState } from "react"
 import ArticleCard from "./ArticleCard"
 import { ScrollArea } from "@/components/ui/scroll-area"
 import { useFeedData } from "@/hooks/use-feed-data"
@@ -22,11 +22,46 @@ interface FeedItem {
 
 interface GridViewProps {
   feeds: { url: string; category: string }[]
+  onSourceChange?: (source: string) => void
 }
 
 // Main GridView component with snap scrolling functionality
-const GridView: FC<GridViewProps> = ({ feeds }) => {
+const GridView: FC<GridViewProps> = ({ feeds, onSourceChange }) => {
   const { articles, errors, loading, isDataReady } = useFeedData(feeds)
+  const sectionRefs = useRef<Map<string, HTMLDivElement>>(new Map())
+
+  useEffect(() => {
+    const observer = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((entry) => {
+          if (entry.isIntersecting && entry.intersectionRatio > 0.5) {
+            const category = entry.target.getAttribute('data-category')
+            if (category && onSourceChange) {
+              onSourceChange(category)
+            }
+          }
+        })
+      },
+      {
+        threshold: 0.5,
+        root: null
+      }
+    )
+
+    sectionRefs.current.forEach((ref) => {
+      if (ref) {
+        observer.observe(ref)
+      }
+    })
+
+    return () => {
+      sectionRefs.current.forEach((ref) => {
+        if (ref) {
+          observer.unobserve(ref)
+        }
+      })
+    }
+  }, [onSourceChange])
 
   // Handle empty feeds state
   if (feeds.length === 0) {
@@ -85,13 +120,12 @@ const GridView: FC<GridViewProps> = ({ feeds }) => {
       {Object.entries(groupedArticles).map(([category, categoryArticles]) => (
         <div 
           key={category} 
+          ref={(el) => el && sectionRefs.current.set(category, el)}
+          data-category={category}
           className="h-[calc(100vh-4rem)] w-full snap-start snap-always py-6 px-4"
         >
           <div className="container mx-auto h-full">
-            <h2 className="text-2xl font-bold text-gray-800 dark:text-gray-200 sticky top-0 bg-background/80 backdrop-blur-sm z-10 p-2 rounded mb-6">
-              {category}
-            </h2>
-            <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 h-[calc(100%-4rem)] overflow-y-auto snap-y snap-mandatory">
+            <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 h-full overflow-y-auto snap-y snap-mandatory">
               {categoryArticles.map((article, index) => (
                 <div 
                   key={`${category}-${index}`} 

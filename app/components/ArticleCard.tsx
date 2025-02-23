@@ -102,19 +102,15 @@ const ArticleCard: FC<ArticleCardProps> = ({ article }) => {
               target.src = "/placeholder.svg"
             }}
           />
-          <div className="absolute top-2 left-2 bg-black/70 backdrop-blur-sm text-white text-xs px-2 py-0.5 rounded">
-            {article.source}
-          </div>
         </div>
-        <div className="p-3">
-          <h3 className="text-sm font-semibold mb-2 line-clamp-2">{decodedTitle}</h3>
-          <p className="text-xs text-gray-600 dark:text-gray-300 mb-2 line-clamp-3">{stripHtml(decodedDescription)}</p>
-          <div className="flex justify-between items-center text-xs text-gray-500 dark:text-gray-400">
-            <span>{new Date(article.pubDate).toLocaleDateString()}</span>
-            <span className="text-primary hover:text-primary/80 font-medium">
-              Read more
-            </span>
-          </div>
+        <div className="p-4">
+          <div className="text-sm text-gray-500 dark:text-gray-400 mb-2">{article.source}</div>
+          <h3 className="font-semibold text-gray-800 dark:text-gray-200 mb-2 line-clamp-2">
+            {decodedTitle}
+          </h3>
+          <p className="text-gray-600 dark:text-gray-300 text-sm line-clamp-3">
+            {stripHtml(decodedDescription)}
+          </p>
         </div>
       </div>
     </a>

@@ -51,6 +51,7 @@ export default function Home() {
   const [isSourcesListOpen, setIsSourcesListOpen] = useState(false)
   const [feedErrors, setFeedErrors] = useState<FeedError[]>([])
   const [isLoading, setIsLoading] = useState(false)
+  const [currentSource, setCurrentSource] = useState<string>("Scoop")
 
   useEffect(() => {
     setFeeds(feed)
@@ -103,9 +104,17 @@ export default function Home() {
         setViewMode={setViewMode}
         openAddFeedModal={() => setIsAddFeedModalOpen(true)}
         toggleSourcesList={() => setIsSourcesListOpen(!isSourcesListOpen)}
+        currentSource={currentSource}
       />
       <div className="flex-1 mt-16">
-        {viewMode === "grid" ? <GridView feeds={feeds} /> : <NewsFeed feeds={feeds} />}
+        {viewMode === "grid" ? (
+          <GridView 
+            feeds={feeds} 
+            onSourceChange={setCurrentSource}
+          />
+        ) : (
+          <NewsFeed feeds={feeds} />
+        )}
       </div>
       <AddFeedModal 
         isOpen={isAddFeedModalOpen} 
