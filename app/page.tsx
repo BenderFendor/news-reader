@@ -34,6 +34,9 @@ const feed: Feed[] = [
   { url: "https://www.project-syndicate.org/rss", category: "Project Syndicate" },
   { url: "https://japantoday.com/rss", category: "Japan Today" },
   { url: "https://www.japantimes.co.jp/feed/", category: "The Japan Times" },
+  { url: "https://www.epicbundle.com/rss-feed-how-to/", category: "Epic Bundle" },
+  { url: "https://feed.phenx.de/lootscraper_epic_game.xml", category: "Epic Games Deals" },
+  { url: "https://feed.phenx.de/lootscraper.xml", category: "Game Deals" },
 ]
 
 export default function Home() {

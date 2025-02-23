@@ -1,4 +1,5 @@
-import type { FC } from "react"
+import { type FC } from "react"
+import { useState, useEffect } from "react"
 import Image from "next/image"
 import { decode } from "html-entities"
 
@@ -24,26 +25,59 @@ interface ArticleCardProps {
 }
 
 const ArticleCard: FC<ArticleCardProps> = ({ article }) => {
-  const getImageUrl = () => {
-    if (article.enclosure?.url && article.enclosure.type?.startsWith("image/")) {
-      return article.enclosure.url
+  const [fallbackImage, setFallbackImage] = useState<string | null>(null)
+
+  const getImageUrl = async () => {
+    try {
+      // Try the RSS feed image sources first
+      if (article.enclosure?.url && article.enclosure.type?.startsWith("image/")) {
+        return article.enclosure.url
+      }
+      if (article.enclosure?.["@_url"] && article.enclosure?.["@_type"]?.startsWith("image/")) {
+        return article.enclosure["@_url"]
+      }
+      if (article["media:content"]?.["@_url"] && article["media:content"]?.["@_type"]?.startsWith("image/")) {
+        return article["media:content"]["@_url"]
+      }
+
+      // More careful handling of description parsing
+      const description = article.description
+      if (description && typeof description === 'string') {
+        try {
+          const imgMatch = description.match(/<img[^>]+src="([^">]+)"/)
+          if (imgMatch && imgMatch[1]) {
+            return imgMatch[1]
+          }
+        } catch (e) {
+          console.error('Error parsing description for images:', e)
+        }
+      }
+
+      // If no image found in RSS, try fetching from article
+      if (!fallbackImage) {
+        const response = await fetch(`/api/fetchArticleImage?url=${encodeURIComponent(article.link)}`)
+        const data = await response.json()
+        if (data.imageUrl) {
+          setFallbackImage(data.imageUrl)
+          return data.imageUrl
+        }
+      }
+
+      return fallbackImage || "/placeholder.svg"
+    } catch (error) {
+      console.error('Error in getImageUrl:', error)
+      return "/placeholder.svg"
     }
-    if (article.enclosure?.["@_url"] && article.enclosure?.["@_type"]?.startsWith("image/")) {
-      return article.enclosure["@_url"]
-    }
-    if (article["media:content"]?.["@_url"] && article["media:content"]?.["@_type"]?.startsWith("image/")) {
-      return article["media:content"]["@_url"]
-    }
-    const imgMatch = article.description?.match(/<img[^>]+src="([^">]+)"/)?.[1]
-    if (imgMatch) {
-      return imgMatch
-    }
-    return "/placeholder.svg"
   }
 
-  const imageUrl = getImageUrl()
+  const [imageUrl, setImageUrl] = useState<string>("/placeholder.svg")
+
+  useEffect(() => {
+    getImageUrl().then(url => setImageUrl(url))
+  }, [article.link])
+
   const decodedTitle = decode(article.title)
-  const decodedDescription = decode(article.description)
+  const decodedDescription = typeof article.description === 'string' ? decode(article.description) : ''
 
   const stripHtml = (html: string) => {
     return html.replace(/<[^>]*>?/gm, "")
