@@ -50,8 +50,8 @@ const ArticleCard: FC<ArticleCardProps> = ({ article }) => {
   }
 
   return (
-    <div className="bg-white dark:bg-amoled-card rounded-lg shadow-md overflow-hidden transition-transform duration-300 hover:scale-105">
-      <div className="relative h-48">
+    <div className="bg-white dark:bg-amoled-card rounded-lg shadow-md overflow-hidden h-full transition-transform duration-300 hover:scale-105">
+      <div className="relative h-40">
         <Image
           src={imageUrl || "/placeholder.svg"}
           alt={decodedTitle}
@@ -62,13 +62,13 @@ const ArticleCard: FC<ArticleCardProps> = ({ article }) => {
             target.src = "/placeholder.svg"
           }}
         />
-        <div className="absolute top-2 left-2 bg-primary text-primary-foreground text-xs px-2 py-1 rounded">
+        <div className="absolute top-2 left-2 bg-primary text-primary-foreground text-xs px-2 py-0.5 rounded">
           {article.source}
         </div>
       </div>
-      <div className="p-4">
-        <h3 className="text-lg font-semibold mb-2 line-clamp-2">{decodedTitle}</h3>
-        <p className="text-sm text-gray-600 dark:text-gray-300 mb-4 line-clamp-3">{stripHtml(decodedDescription)}</p>
+      <div className="p-3">
+        <h3 className="text-sm font-semibold mb-2 line-clamp-2">{decodedTitle}</h3>
+        <p className="text-xs text-gray-600 dark:text-gray-300 mb-2 line-clamp-3">{stripHtml(decodedDescription)}</p>
         <div className="flex justify-between items-center text-xs text-gray-500 dark:text-gray-400">
           <span>{new Date(article.pubDate).toLocaleDateString()}</span>
           <a

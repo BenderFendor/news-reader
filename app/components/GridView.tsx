@@ -93,29 +93,25 @@ const GridView: FC<GridViewProps> = ({ feeds }) => {
   }
 
   return (
-    <div className="container mx-auto px-4 py-8">
-      {Object.entries(groupedArticles).map(([category, categoryArticles]) => (
-        <div key={category} className="mb-12">
-          <h2 className="text-2xl font-bold mb-6 text-gray-800 dark:text-gray-200 border-b border-gray-200 dark:border-gray-700 pb-2">
-            {category}
-          </h2>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {categoryArticles.slice(0, expandedCategories.includes(category) ? categoryArticles.length : 6).map((article, index) => (
-              <ArticleCard key={index} article={article} />
-            ))}
-          </div>
-          {categoryArticles.length > 6 && !expandedCategories.includes(category) && (
-            <div className="text-center p-4 border-t border-gray-200 dark:border-gray-700">
-              <button
-                onClick={() => toggleCategoryExpansion(category)}
-                className="text-blue-600 dark:text-blue-400 hover:underline font-medium"
-              >
-                Show {categoryArticles.length - 6} more articles
-              </button>
+    <div className="container mx-auto px-4 py-4">
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+        {Object.entries(groupedArticles).map(([category, categoryArticles]) => (
+          <div key={category} className="mb-4">
+            <h2 className="text-lg font-bold mb-3 text-gray-800 dark:text-gray-200 border-b border-gray-200 dark:border-gray-700 pb-1">
+              {category}
+            </h2>
+            <div className="h-[660px] overflow-y-auto pr-2 snap-y snap-mandatory scrollbar-thin scrollbar-thumb-gray-300 dark:scrollbar-thumb-gray-700 scrollbar-track-transparent">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                {categoryArticles.map((article, index) => (
+                  <div key={index} className="h-[320px] snap-start">
+                    <ArticleCard key={index} article={article} />
+                  </div>
+                ))}
+              </div>
             </div>
-          )}
-        </div>
-      ))}
+          </div>
+        ))}
+      </div>
     </div>
   )
 }
