@@ -1,0 +1,61 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;700&display=swap');
+
+body {
+  font-family: 'Inter', Arial, Helvetica, sans-serif;
+}
+
+@layer utilities {
+  .text-balance {
+    text-wrap: balance;
+  }
+}
+
+@layer base {
+  :root {
+    --background: #000000;
+    --foreground: #FFFFFF;
+    --card: #000000;
+    --card-foreground: #FFFFFF;
+    --popover: #000000;
+    --popover-foreground: #FFFFFF;
+    --primary: #FFFFFF;
+    --primary-foreground: #000000;
+    --secondary: #121212;
+    --secondary-foreground: #FFFFFF;
+    --muted: #121212;
+    --muted-foreground: #999999;
+    --accent: #121212;
+    --accent-foreground: #FFFFFF;
+    --destructive: #880E4F;
+    --destructive-foreground: #FFFFFF;
+    --border: #2E2E2E;
+    --input: #1E1E1E;
+    --ring: #BDBDBD;
+    --chart-1: #64B5F6;
+    --chart-2: #81C784;
+    --chart-3: #FFB74D;
+    --chart-4: #BA68C8;
+    --chart-5: #E57373;
+    --radius: 0.5rem;
+    --sidebar-background: #000000;
+    --sidebar-foreground: #A9A9A9;
+    --sidebar-primary: #121212;
+    --sidebar-primary-foreground: #FFFFFF;
+    --sidebar-accent: #F0F0F0;
+    --sidebar-accent-foreground: #121212;
+    --sidebar-border: #333333;
+    --sidebar-ring: #6B8E23;
+  }
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+  body {
+    @apply bg-background text-foreground;
+  }
+}
