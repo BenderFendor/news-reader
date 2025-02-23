@@ -51,7 +51,9 @@ export default function Home() {
   const [isSourcesListOpen, setIsSourcesListOpen] = useState(false)
   const [feedErrors, setFeedErrors] = useState<FeedError[]>([])
   const [isLoading, setIsLoading] = useState(false)
-  const [currentSource, setCurrentSource] = useState<string>("Scoop")
+  const [currentSource, setCurrentSource] = useState<string>("All Sources")
+
+  console.log(currentSource)
 
   useEffect(() => {
     setFeeds(feed)

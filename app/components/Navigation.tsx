@@ -11,7 +11,7 @@ interface NavigationProps {
   currentSource?: string
 }
 
-const Navigation: FC<NavigationProps> = ({ viewMode, setViewMode, openAddFeedModal, toggleSourcesList, currentSource = "Scoop" }) => {
+const Navigation: FC<NavigationProps> = ({ viewMode, setViewMode, openAddFeedModal, toggleSourcesList, currentSource }) => {
   const [lastScrollY, setLastScrollY] = useState(0)
   const [isScrollingDown, setIsScrollingDown] = useState(false)
 
@@ -27,37 +27,37 @@ const Navigation: FC<NavigationProps> = ({ viewMode, setViewMode, openAddFeedMod
   }, [lastScrollY])
 
   return (
-    <nav className={`fixed top-0 left-0 right-0 bg-background/80 backdrop-blur-sm z-50 transition-transform duration-300 transform ${isScrollingDown ? '-translate-y-full' : 'translate-y-0'}`}>
-      <div className="container mx-auto px-4 py-3">
-        <div className="flex justify-between items-center relative">
-          <h1 className="absolute left-1/2 transform -translate-x-1/2 text-xl font-semibold">{currentSource}</h1>
-          <div className="flex items-center space-x-4">
+    <nav className={`header fixed top-0 left-0 right-0 bg-background/80 backdrop-blur-sm z-50 transition-transform duration-300 transform ${isScrollingDown ? '-translate-y-full' : 'translate-y-0'}`}>
+      <div className="header-container container mx-auto px-4 py-3">
+        <div className="header-content flex justify-between items-center relative">
+          <h1 className="header-title absolute left-1/2 transform -translate-x-1/2 text-lg font-semibold text-foreground/90 z-10 whitespace-nowrap">{currentSource || "All Sources"}</h1>
+          <div className="header-view-mode flex items-center space-x-4">
             <button
               onClick={() => setViewMode("grid")}
-              className={`p-2 rounded-lg ${viewMode === "grid" ? "bg-primary text-primary-foreground" : "hover:bg-accent hover:text-accent-foreground"}`}
+              className={`header-view-mode-button p-2 rounded-lg ${viewMode === "grid" ? "bg-primary text-primary-foreground" : "hover:bg-accent hover:text-accent-foreground"}`}
               aria-label="Grid view"
             >
               <Grid2X2 size={24} />
             </button>
             <button
               onClick={() => setViewMode("tiktok")}
-              className={`p-2 rounded-lg ${viewMode === "tiktok" ? "bg-primary text-primary-foreground" : "hover:bg-accent hover:text-accent-foreground"}`}
+              className={`header-view-mode-button p-2 rounded-lg ${viewMode === "tiktok" ? "bg-primary text-primary-foreground" : "hover:bg-accent hover:text-accent-foreground"}`}
               aria-label="TikTok style view"
             >
               <ScrollText size={24} />
             </button>
           </div>
-          <div className="flex items-center space-x-4">
+          <div className="header-actions flex items-center space-x-4">
             <button
               onClick={openAddFeedModal}
-              className="p-2 rounded-lg hover:bg-accent hover:text-accent-foreground"
+              className="header-action-button p-2 rounded-lg hover:bg-accent hover:text-accent-foreground"
               aria-label="Add feed"
             >
               <Plus size={24} />
             </button>
             <button
               onClick={toggleSourcesList}
-              className="p-2 rounded-lg hover:bg-accent hover:text-accent-foreground"
+              className="header-action-button p-2 rounded-lg hover:bg-accent hover:text-accent-foreground"
               aria-label="View sources"
             >
               <List size={24} />

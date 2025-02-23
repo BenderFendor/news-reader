@@ -75,6 +75,33 @@
   }
 }
 
+@layer components {
+  .header {
+    /* Styles for the header */
+  }
+  .header-container {
+    /* Styles for the header container */
+  }
+  .header-content {
+    /* Styles for the header content */
+  }
+  .header-title {
+    @apply sticky top-0 bg-background z-10 p-4 text-xl font-semibold;
+  }
+  .header-view-mode {
+    /* Styles for the view mode buttons container */
+  }
+  .header-view-mode-button {
+    /* Styles for the view mode buttons */
+  }
+  .header-actions {
+    /* Styles for the header actions container */
+  }
+  .header-action-button {
+    /* Styles for the header action buttons */
+  }
+}
+
 @layer utilities {
   /* Chrome, Safari and Opera */
   .scrollbar-thin::-webkit-scrollbar {

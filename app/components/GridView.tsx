@@ -5,6 +5,7 @@ import { type FC, useEffect, useRef, useState } from "react"
 import ArticleCard from "./ArticleCard"
 import { ScrollArea } from "@/components/ui/scroll-area"
 import { useFeedData } from "@/hooks/use-feed-data"
+import styles from "./GridView.module.css"
 
 // Define interfaces for feed items and component props
 interface FeedItem {
@@ -28,40 +29,55 @@ interface GridViewProps {
 // Main GridView component with snap scrolling functionality
 const GridView: FC<GridViewProps> = ({ feeds, onSourceChange }) => {
   const { articles, errors, loading, isDataReady } = useFeedData(feeds)
+  // Create a ref to store references to category sections for intersection observation
   const sectionRefs = useRef<Map<string, HTMLDivElement>>(new Map())
+  // Track the currently visible category to prevent redundant updates
+  const [currentlyVisibleCategory, setCurrentlyVisibleCategory] = useState<string | null>(null)
 
   useEffect(() => {
+    // Create an intersection observer to track which category section is most visible
     const observer = new IntersectionObserver(
       (entries) => {
+        // Find the entry with the highest intersection ratio
+        let maxRatio = 0;
+        let mostVisibleCategory = null;
+
         entries.forEach((entry) => {
-          if (entry.isIntersecting && entry.intersectionRatio > 0.5) {
-            const category = entry.target.getAttribute('data-category')
-            if (category && onSourceChange) {
-              onSourceChange(category)
-            }
+          if (entry.isIntersecting && entry.intersectionRatio > maxRatio) {
+            maxRatio = entry.intersectionRatio;
+            mostVisibleCategory = entry.target.getAttribute('data-category');
           }
-        })
+        });
+
+        // Update only if we have a most visible category and it's different from current
+        if (mostVisibleCategory && mostVisibleCategory !== currentlyVisibleCategory) {
+          setCurrentlyVisibleCategory(mostVisibleCategory);
+          if (onSourceChange) {
+            onSourceChange(mostVisibleCategory);
+          }
+        }
       },
       {
-        threshold: 0.5,
-        root: null
+        // Use multiple thresholds for smoother detection
+        threshold: [0, 0.25, 0.5, 0.75, 1],
+        root: null,
+        rootMargin: "-10% 0px -10% 0px" // Add margin to improve detection accuracy
       }
-    )
+    );
 
+    // Observe all category sections
     sectionRefs.current.forEach((ref) => {
       if (ref) {
-        observer.observe(ref)
+        observer.observe(ref);
       }
-    })
+    });
 
+    // Cleanup observer when component unmounts
     return () => {
-      sectionRefs.current.forEach((ref) => {
-        if (ref) {
-          observer.unobserve(ref)
-        }
-      })
-    }
-  }, [onSourceChange])
+      observer.disconnect();
+      sectionRefs.current.clear();
+    };
+  }, [onSourceChange, currentlyVisibleCategory]); // Include currentlyVisibleCategory in dependencies
 
   // Handle empty feeds state
   if (feeds.length === 0) {
@@ -116,22 +132,26 @@ const GridView: FC<GridViewProps> = ({ feeds, onSourceChange }) => {
   )
 
   return (
-    <div className="h-[calc(100vh-4rem)] w-full overflow-y-auto snap-y snap-mandatory">
+    <div className={styles.gridView_container}>
       {Object.entries(groupedArticles).map(([category, categoryArticles]) => (
-        <div 
-          key={category} 
-          ref={(el) => el && sectionRefs.current.set(category, el)}
+        <div
+          key={category}
+          ref={(el) => {
+            if (el) {
+              sectionRefs.current.set(category, el);
+            }
+          }}
           data-category={category}
-          className="h-[calc(100vh-4rem)] w-full snap-start snap-always py-6 px-4"
+          className={styles.gridView_categorySection}
         >
-          <div className="container mx-auto h-full">
-            <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 h-full overflow-y-auto snap-y snap-mandatory">
+          <div className={styles.gridView_categoryContainer}>
+            <div className={styles.gridView_articleGrid}>
               {categoryArticles.map((article, index) => (
-                <div 
-                  key={`${category}-${index}`} 
-                  className="transform transition-transform duration-300 hover:scale-105 snap-start snap-always h-[320px]"
+                <div
+                  key={`${category}-${index}`}
+                  className={styles.gridView_articleWrapper}
                 >
-                  <ArticleCard article={article} />
+                  <ArticleCard article={article} source={category} />
                 </div>
               ))}
             </div>
@@ -143,4 +163,3 @@ const GridView: FC<GridViewProps> = ({ feeds, onSourceChange }) => {
 }
 
 export default GridView
-

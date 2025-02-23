@@ -1,0 +1,23 @@
+.gridView_container {
+  @apply h-[calc(100vh-4rem)] w-full overflow-y-auto snap-y snap-mandatory;
+}
+
+.gridView_header {
+  @apply sticky top-0 bg-background z-10 p-4 text-xl font-semibold;
+}
+
+.gridView_categorySection {
+  @apply h-[calc(100vh-4rem)] w-full snap-start snap-always py-6 px-4;
+}
+
+.gridView_categoryContainer {
+  @apply container mx-auto h-full;
+}
+
+.gridView_articleGrid {
+  @apply grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 h-full overflow-y-auto snap-y snap-mandatory;
+}
+
+.gridView_articleWrapper {
+  @apply transform transition-transform duration-300 hover:scale-105 snap-start snap-always h-[320px];
+}

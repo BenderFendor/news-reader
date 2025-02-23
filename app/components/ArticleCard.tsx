@@ -1,7 +1,8 @@
-import { type FC } from "react"
-import { useState, useEffect } from "react"
+import { type FC, useRef, useEffect } from "react"
+import { useState } from "react"
 import Image from "next/image"
 import { decode } from "html-entities"
+import styles from "./ArticleCard.module.css"
 
 interface ArticleCardProps {
   article: {
@@ -22,10 +23,12 @@ interface ArticleCardProps {
     source: string
     category: string
   }
+  source: string; // Add source prop
 }
 
-const ArticleCard: FC<ArticleCardProps> = ({ article }) => {
+const ArticleCard: FC<ArticleCardProps> = ({ article, source }) => {
   const [fallbackImage, setFallbackImage] = useState<string | null>(null)
+  const cardRef = useRef<HTMLAnchorElement>(null);
 
   const getImageUrl = async () => {
     try {
@@ -44,7 +47,7 @@ const ArticleCard: FC<ArticleCardProps> = ({ article }) => {
       const description = article.description
       if (description && typeof description === 'string') {
         try {
-          const imgMatch = description.match(/<img[^>]+src="([^">]+)"/)
+          const imgMatch = description.match(/<img[^>]+src="([^"]+)"/)
           if (imgMatch && imgMatch[1]) {
             return imgMatch[1]
           }
@@ -89,26 +92,27 @@ const ArticleCard: FC<ArticleCardProps> = ({ article }) => {
       target="_blank"
       rel="noopener noreferrer"
       className="block h-full"
+      ref={cardRef}
     >
-      <div className="bg-white dark:bg-amoled-card rounded-lg shadow-md overflow-hidden h-full transition-transform duration-300 hover:scale-105">
-        <div className="relative h-40">
+      <div className={styles.articleCard_container}>
+        <div className={styles.articleCard_imageContainer}>
           <Image
             src={imageUrl || "/placeholder.svg"}
             alt={decodedTitle}
             fill
-            className="object-cover"
+            className={styles.articleCard_image}
             onError={(e) => {
               const target = e.target as HTMLImageElement
               target.src = "/placeholder.svg"
             }}
           />
         </div>
-        <div className="p-4">
-          <div className="text-sm text-gray-500 dark:text-gray-400 mb-2">{article.source}</div>
-          <h3 className="font-semibold text-gray-800 dark:text-gray-200 mb-2 line-clamp-2">
+        <div className={styles.articleCard_content}>
+          <div className={styles.articleCard_source}>{source}</div> {/* Display source as "Scoop" header */}
+          <h3 className={styles.articleCard_title}>
             {decodedTitle}
           </h3>
-          <p className="text-gray-600 dark:text-gray-300 text-sm line-clamp-3">
+          <p className={styles.articleCard_description}>
             {stripHtml(decodedDescription)}
           </p>
         </div>
@@ -118,4 +122,3 @@ const ArticleCard: FC<ArticleCardProps> = ({ article }) => {
 }
 
 export default ArticleCard
-

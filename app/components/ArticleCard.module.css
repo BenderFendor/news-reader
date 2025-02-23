@@ -1,0 +1,27 @@
+.articleCard_container {
+  @apply bg-white dark:bg-amoled-card rounded-lg shadow-md overflow-hidden h-full transition-transform duration-300 hover:scale-105;
+}
+
+.articleCard_imageContainer {
+  @apply relative h-40;
+}
+
+.articleCard_image {
+  @apply object-cover;
+}
+
+.articleCard_content {
+  @apply p-4;
+}
+
+.articleCard_source {
+  @apply text-sm text-gray-500 dark:text-gray-400 mb-2;
+}
+
+.articleCard_title {
+  @apply font-semibold text-gray-800 dark:text-gray-200 mb-2 line-clamp-2;
+}
+
+.articleCard_description {
+  @apply text-gray-600 dark:text-gray-300 text-sm line-clamp-3;
+}
