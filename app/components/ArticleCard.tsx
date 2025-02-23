@@ -62,7 +62,7 @@ const ArticleCard: FC<ArticleCardProps> = ({ article }) => {
             target.src = "/placeholder.svg"
           }}
         />
-        <div className="absolute top-2 left-2 bg-primary text-primary-foreground text-xs px-2 py-0.5 rounded">
+        <div className="absolute top-2 left-2 bg-black/70 backdrop-blur-sm text-white text-xs px-2 py-0.5 rounded">
           {article.source}
         </div>
       </div>
