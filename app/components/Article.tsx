@@ -53,7 +53,7 @@ const Article: FC<ArticleProps> = ({ article, isGridView = false, isTikTokStyle 
 
   if (isTikTokStyle) {
     return (
-      <div className="relative w-full h-full max-w-lg mx-auto bg-white dark:bg-dark-card rounded-lg shadow-xl overflow-hidden">
+      <div className="relative w-full h-screen max-w-lg mx-auto bg-white dark:bg-dark-card rounded-lg shadow-xl overflow-hidden">
         <Image
           src={imageUrl || "/placeholder.svg"}
           alt={decodedTitle}
@@ -65,7 +65,7 @@ const Article: FC<ArticleProps> = ({ article, isGridView = false, isTikTokStyle 
           }}
         />
         <div className="absolute inset-0 bg-gradient-to-t from-black via-transparent to-transparent z-10" />
-        <div className="absolute bottom-0 left-0 right-0 p-6 z-20">
+        <div className="absolute bottom-0 left-0 right-0 p-6 z-20 overflow-y-auto max-h-full">
           <h2 className="text-2xl font-bold text-white mb-2">{decodedTitle}</h2>
           <p className="text-sm text-gray-200 mb-4 line-clamp-3">{stripHtml(decodedDescription)}</p>
           <div className="flex justify-between items-center text-xs text-gray-300">
@@ -87,9 +87,9 @@ const Article: FC<ArticleProps> = ({ article, isGridView = false, isTikTokStyle 
 
   return (
     <div
-      className={`bg-white dark:bg-dark-card rounded-lg shadow-md overflow-hidden ${isGridView ? "h-full" : "h-full w-full max-w-2xl"}`}
+      className={`bg-white dark:bg-dark-card rounded-lg shadow-md overflow-hidden ${isGridView ? "h-64 w-64" : "h-full w-full max-w-2xl"}`}
     >
-      <div className="relative h-48 w-full">
+      <div className="relative h-32 w-full">
         <Image
           src={imageUrl || "/placeholder.svg"}
           alt={decodedTitle}
@@ -100,28 +100,28 @@ const Article: FC<ArticleProps> = ({ article, isGridView = false, isTikTokStyle 
             target.src = "/placeholder.svg"
           }}
         />
-        <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black to-transparent p-4">
-          <h3 className="text-lg font-semibold text-white line-clamp-2">{decodedTitle}</h3>
+        <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black to-transparent p-2">
+          <h3 className="text-sm font-semibold text-white line-clamp-2">{decodedTitle}</h3>
         </div>
       </div>
-      <div className="p-4">
+      <div className="p-2">
         <div
-          className="text-sm text-gray-600 dark:text-gray-300 line-clamp-3"
+          className="text-xs text-gray-600 dark:text-gray-300 line-clamp-2"
           dangerouslySetInnerHTML={{
             __html: stripHtml(decodedDescription) || "No description available",
           }}
         />
-        <div className="mt-4 flex justify-between items-center text-xs text-gray-500 dark:text-gray-400">
+        <div className="mt-2 flex justify-between items-center text-xs text-gray-500 dark:text-gray-400">
           <span>{new Date(article.pubDate).toLocaleDateString()}</span>
-          <span className="px-2 py-1 bg-gray-200 dark:bg-gray-700 rounded-full">{article.category}</span>
+          <span className="px-1 py-0.5 bg-gray-200 dark:bg-gray-700 rounded-full">{article.category}</span>
         </div>
       </div>
-      <div className="px-4 py-3 border-t border-gray-200 dark:border-gray-700">
+      <div className="px-2 py-1 border-t border-gray-200 dark:border-gray-700">
         <a
           href={article.link}
           target="_blank"
           rel="noopener noreferrer"
-          className="text-blue-600 dark:text-blue-400 hover:underline text-sm font-medium"
+          className="text-blue-600 dark:text-blue-400 hover:underline text-xs font-medium"
         >
           Read more
         </a>

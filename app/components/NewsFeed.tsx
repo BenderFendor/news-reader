@@ -46,7 +46,7 @@ const NewsFeed: FC<NewsFeedProps> = ({ feeds }) => {
         setErrors(data.errors)
       } catch (error) {
         console.error("Error fetching feeds:", error)
-        setErrors([{ url: "all", error: error.message }])
+        setErrors([{ url: "all", error: (error as Error).message }])
       }
       setLoading(false)
     }
