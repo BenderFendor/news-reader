@@ -53,8 +53,6 @@ export default function Home() {
   const [isLoading, setIsLoading] = useState(false)
   const [currentSource, setCurrentSource] = useState<string>("All Sources")
 
-  console.log(currentSource)
-
   useEffect(() => {
     setFeeds(feed)
   }, [])
@@ -99,6 +97,11 @@ export default function Home() {
     }
   }, [feeds])
 
+  // Debug useEffect to log currentSource state changes
+  useEffect(() => {
+    console.log("Debug: currentSource state updated to", currentSource)
+  }, [currentSource])
+
   return (
     <main className="min-h-screen bg-amoled flex flex-col">
       <Navigation
@@ -110,9 +113,13 @@ export default function Home() {
       />
       <div className="flex-1 mt-16">
         {viewMode === "grid" ? (
-          <GridView 
-            feeds={feeds} 
-            onSourceChange={setCurrentSource}
+          <GridView
+            feeds={feeds}
+            currentSource={currentSource}
+            onSourceChange={(source) => {
+              console.log("Debug: onSourceChange called with:", source)
+              setCurrentSource(source)
+            }}
           />
         ) : (
           <NewsFeed feeds={feeds} />

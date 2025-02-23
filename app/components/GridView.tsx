@@ -1,7 +1,7 @@
 "use client"
 
 // Import necessary components and hooks
-import { type FC, useEffect, useRef, useState } from "react"
+import { type FC, useEffect, useRef } from "react"
 import ArticleCard from "./ArticleCard"
 import { ScrollArea } from "@/components/ui/scroll-area"
 import { useFeedData } from "@/hooks/use-feed-data"
@@ -23,61 +23,48 @@ interface FeedItem {
 
 interface GridViewProps {
   feeds: { url: string; category: string }[]
+  currentSource: string  // Global current source provided by parent
   onSourceChange?: (source: string) => void
 }
 
 // Main GridView component with snap scrolling functionality
-const GridView: FC<GridViewProps> = ({ feeds, onSourceChange }) => {
+const GridView: FC<GridViewProps> = ({ feeds, currentSource, onSourceChange }) => {
   const { articles, errors, loading, isDataReady } = useFeedData(feeds)
-  // Create a ref to store references to category sections for intersection observation
+  // Remove containerRef & handleScroll for improved header update reliability
   const sectionRefs = useRef<Map<string, HTMLDivElement>>(new Map())
-  // Track the currently visible category to prevent redundant updates
-  const [currentlyVisibleCategory, setCurrentlyVisibleCategory] = useState<string | null>(null)
 
+  // Intersection observer useEffect with debug logs
   useEffect(() => {
-    // Create an intersection observer to track which category section is most visible
     const observer = new IntersectionObserver(
       (entries) => {
-        // Find the entry with the highest intersection ratio
-        let maxRatio = 0;
-        let mostVisibleCategory = null;
-
+        let maxRatio = 0
+        let mostVisibleCategory: string | null = null
+        // Iterate through each entry and log their visibility ratios for debugging
         entries.forEach((entry) => {
-          if (entry.isIntersecting && entry.intersectionRatio > maxRatio) {
-            maxRatio = entry.intersectionRatio;
-            mostVisibleCategory = entry.target.getAttribute('data-category');
+          const category = entry.target.getAttribute("data-category")
+          console.log("Debug: category", category, "ratio", entry.intersectionRatio)  // Debug log
+          if (entry.intersectionRatio > maxRatio) {
+            maxRatio = entry.intersectionRatio
+            mostVisibleCategory = category
           }
-        });
-
-        // Update only if we have a most visible category and it's different from current
-        if (mostVisibleCategory && mostVisibleCategory !== currentlyVisibleCategory) {
-          setCurrentlyVisibleCategory(mostVisibleCategory);
-          if (onSourceChange) {
-            onSourceChange(mostVisibleCategory);
-          }
+        })
+        console.log("Debug: mostVisibleCategory calculated as", mostVisibleCategory, "while currentSource =", currentSource)  // Debug log
+        if (mostVisibleCategory && mostVisibleCategory !== currentSource) {
+          onSourceChange && onSourceChange(mostVisibleCategory)
         }
       },
-      {
-        // Use multiple thresholds for smoother detection
-        threshold: [0, 0.25, 0.5, 0.75, 1],
-        root: null,
-        rootMargin: "-10% 0px -10% 0px" // Add margin to improve detection accuracy
-      }
-    );
+      { threshold: [0, 0.25, 0.5, 0.75, 1] }
+    )
 
-    // Observe all category sections
-    sectionRefs.current.forEach((ref) => {
-      if (ref) {
-        observer.observe(ref);
-      }
-    });
+    sectionRefs.current.forEach((section) => {
+      if (section) observer.observe(section)
+    })
 
-    // Cleanup observer when component unmounts
     return () => {
-      observer.disconnect();
-      sectionRefs.current.clear();
-    };
-  }, [onSourceChange, currentlyVisibleCategory]); // Include currentlyVisibleCategory in dependencies
+      observer.disconnect()
+      sectionRefs.current.clear()
+    }
+  }, [currentSource, onSourceChange])
 
   // Handle empty feeds state
   if (feeds.length === 0) {
@@ -137,9 +124,7 @@ const GridView: FC<GridViewProps> = ({ feeds, onSourceChange }) => {
         <div
           key={category}
           ref={(el) => {
-            if (el) {
-              sectionRefs.current.set(category, el);
-            }
+            if (el) sectionRefs.current.set(category, el)
           }}
           data-category={category}
           className={styles.gridView_categorySection}

@@ -28,6 +28,7 @@ interface ArticleCardProps {
 
 const ArticleCard: FC<ArticleCardProps> = ({ article, source }) => {
   const [fallbackImage, setFallbackImage] = useState<string | null>(null)
+  const [imageUrl, setImageUrl] = useState<string>("/placeholder.svg")
   const cardRef = useRef<HTMLAnchorElement>(null);
 
   const getImageUrl = async () => {
@@ -73,10 +74,12 @@ const ArticleCard: FC<ArticleCardProps> = ({ article, source }) => {
     }
   }
 
-  const [imageUrl, setImageUrl] = useState<string>("/placeholder.svg")
-
   useEffect(() => {
-    getImageUrl().then(url => setImageUrl(url))
+    console.log("Current source:", source)
+    getImageUrl().then(url => {
+      console.log("Debug: getImageUrl resolved with", url)
+      setImageUrl(url)
+    })
   }, [article.link])
 
   const decodedTitle = decode(article.title)
