@@ -9,20 +9,7 @@ interface NewsFeedProps {
 }
 
 const NewsFeed: FC<NewsFeedProps> = ({ feeds }) => {
-  const { articles, errors, loading, isDataReady } = useFeedData(feeds)
-
-  if (!isDataReady) {
-    return (
-      <div className="snap-y snap-mandatory h-screen overflow-y-scroll bg-gray-100 dark:bg-amoled">
-        <div className="snap-start h-screen flex items-center justify-center">
-          <div className="flex flex-col items-center space-y-4">
-            <div className="w-12 h-12 border-4 border-primary border-t-transparent rounded-full animate-spin" />
-            <p className="text-muted-foreground">Loading articles...</p>
-          </div>
-        </div>
-      </div>
-    )
-  }
+  const { articles, errors } = useFeedData(feeds)
 
   if (errors.length > 0 && articles.length === 0) {
     return (

@@ -1,7 +1,7 @@
 "use client"
 
 // Import necessary components and hooks
-import { type FC, useEffect, useRef } from "react"
+import { type FC, useEffect, useRef, useState } from "react"
 import ArticleCard from "./ArticleCard"
 import { ScrollArea } from "@/components/ui/scroll-area"
 import { useFeedData } from "@/hooks/use-feed-data"
@@ -29,7 +29,15 @@ interface GridViewProps {
 
 // Main GridView component with snap scrolling functionality
 const GridView: FC<GridViewProps> = ({ feeds, currentSource, onSourceChange }) => {
-  const { articles, errors, loading, isDataReady } = useFeedData(feeds)
+  const { articles, errors } = useFeedData(feeds)
+  const [visibleCategory, setVisibleCategory] = useState<string | null>(null)
+
+  useEffect(() => {
+    // Update the source if it changes from the parent
+    if (currentSource !== visibleCategory && currentSource) {
+      setVisibleCategory(currentSource)
+    }
+  }, [currentSource, visibleCategory])
   const sectionRefs = useRef<Map<string, HTMLDivElement>>(new Map())
 
   // New function to track and log scroll position
@@ -68,10 +76,11 @@ const GridView: FC<GridViewProps> = ({ feeds, currentSource, onSourceChange }) =
           }
         })
         console.log("Debug: mostVisibleCategory calculated as", mostVisibleCategory, "while currentSource =", currentSource)  // Debug log
-        if (mostVisibleCategory && mostVisibleCategory !== currentSource) {
+        if (mostVisibleCategory && mostVisibleCategory !== visibleCategory) {
+          setVisibleCategory(mostVisibleCategory)
           onSourceChange && onSourceChange(mostVisibleCategory)
           if (mostVisibleCategory) {
-            logVisibleCategory(mostVisibleCategory) // Call the new function here
+            logVisibleCategory(mostVisibleCategory)
           }
         }
       },
@@ -95,18 +104,6 @@ const GridView: FC<GridViewProps> = ({ feeds, currentSource, onSourceChange }) =
         <div className="text-center">
           <h2 className="text-xl font-semibold text-gray-800 dark:text-gray-200 mb-2">No RSS Feeds Added</h2>
           <p className="text-gray-600 dark:text-gray-400">Click the "Add Feed" button to get started</p>
-        </div>
-      </div>
-    )
-  }
-
-  // Handle loading state
-  if (!isDataReady || loading) {
-    return (
-      <div className="container mx-auto px-4 h-[calc(100vh-4rem)] flex items-center justify-center">
-        <div className="flex flex-col items-center space-y-4">
-          <div className="w-12 h-12 border-4 border-primary border-t-transparent rounded-full animate-spin" />
-          <p className="text-muted-foreground">Loading articles...</p>
         </div>
       </div>
     )

@@ -5,64 +5,64 @@
 @layer base {
   :root {
     --background: 0 0% 0%;      /* Pure black */
-    --foreground: 0 0% 100%;    /* White */
+    --foreground: 0 0% 98%;    /* Slightly off-white for better eye comfort */
 
-    --card: 0 0% 8%;           /* #141414 */
-    --card-foreground: 0 0% 100%;
+    --card: 0 0% 8%;           /* #141414 - Card background */
+    --card-foreground: 0 0% 95%;  /* Slightly dimmed white for card content */
 
-    --popover: 0 0% 8%;        /* #141414 */
-    --popover-foreground: 0 0% 100%;
+    --popover: 0 0% 8%;        /* #141414 - Popover background */
+    --popover-foreground: 0 0% 95%;
 
-    --primary: 0 0% 100%;      /* White */
+    --primary: 0 0% 98%;       /* Slightly off-white for primary elements */
     --primary-foreground: 0 0% 0%;
 
-    --secondary: 0 0% 8%;      /* #141414 */
-    --secondary-foreground: 0 0% 100%;
+    --secondary: 0 0% 10%;     /* #1a1a1a - Slightly lighter than card */
+    --secondary-foreground: 0 0% 90%;
 
-    --muted: 0 0% 8%;         /* #141414 */
-    --muted-foreground: 0 0% 70%;
+    --muted: 0 0% 12%;         /* #1f1f1f - Subtle contrast for muted elements */
+    --muted-foreground: 0 0% 65%;  /* Reduced contrast for less important text */
 
-    --accent: 0 0% 8%;        /* #141414 */
-    --accent-foreground: 0 0% 100%;
+    --accent: 0 0% 14%;        /* #242424 - Subtle highlight for accents */
+    --accent-foreground: 0 0% 98%;
 
-    --destructive: 0 80% 36%;
-    --destructive-foreground: 0 0% 100%;
+    --destructive: 0 75% 40%;   /* Slightly muted red for better AMOLED contrast */
+    --destructive-foreground: 0 0% 98%;
 
-    --border: 0 0% 10%;       /* #1a1a1a */
-    --input: 0 0% 8%;         /* #141414 */
-    --ring: 0 0% 8%;          /* #141414 */
+    --border: 0 0% 12%;        /* #1f1f1f - Subtle borders */
+    --input: 0 0% 10%;         /* #1a1a1a - Input fields */
+    --ring: 0 0% 14%;          /* #242424 - Focus rings */
 
     --radius: 0.5rem;
   }
 
   .dark {
-    --background: #000000;     /* Pure black */
-    --foreground: #FFFFFF;
+    --background: #000000;     /* Pure black for AMOLED */
+    --foreground: #fafafa;     /* Slightly off-white */
 
-    --card: #141414;          /* Very dark gray */
-    --card-foreground: #FFFFFF;
+    --card: #141414;          /* Card background */
+    --card-foreground: #f2f2f2;  /* Slightly dimmed white */
 
-    --popover: #141414;
-    --popover-foreground: #FFFFFF;
+    --popover: #141414;       /* Popover background */
+    --popover-foreground: #f2f2f2;
 
-    --primary: #FFFFFF;
+    --primary: #fafafa;       /* Primary elements */
     --primary-foreground: #000000;
 
-    --secondary: #141414;
-    --secondary-foreground: #FFFFFF;
+    --secondary: #1a1a1a;     /* Slightly lighter than card */
+    --secondary-foreground: #e6e6e6;
 
-    --muted: #141414;
-    --muted-foreground: #B3B3B3;
+    --muted: #1f1f1f;         /* Subtle contrast */
+    --muted-foreground: #a6a6a6;  /* Reduced contrast text */
 
-    --accent: #141414;
-    --accent-foreground: #FFFFFF;
+    --accent: #242424;        /* Subtle highlight */
+    --accent-foreground: #fafafa;
 
-    --destructive: #B71C1C;
-    --destructive-foreground: #FFFFFF;
+    --destructive: #cc1818;   /* Muted red */
+    --destructive-foreground: #fafafa;
 
-    --border: #1a1a1a;
-    --input: #141414;
-    --ring: #141414;
+    --border: #1f1f1f;        /* Subtle borders */
+    --input: #1a1a1a;         /* Input fields */
+    --ring: #242424;          /* Focus rings */
   }
 }
 

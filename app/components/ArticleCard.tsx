@@ -1,5 +1,5 @@
-import { type FC, useRef, useEffect } from "react"
-import { useState } from "react"
+import { type FC } from "react"
+import { useState, useEffect } from "react"
 import Image from "next/image"
 import { decode } from "html-entities"
 import styles from "./ArticleCard.module.css"
@@ -23,64 +23,23 @@ interface ArticleCardProps {
     source: string
     category: string
   }
-  source: string; // Add source prop
+  source: string
 }
 
 const ArticleCard: FC<ArticleCardProps> = ({ article, source }) => {
-  const [fallbackImage, setFallbackImage] = useState<string | null>(null)
   const [imageUrl, setImageUrl] = useState<string>("/placeholder.svg")
-  const cardRef = useRef<HTMLAnchorElement>(null);
-
-  const getImageUrl = async () => {
-    try {
-      // Try the RSS feed image sources first
-      if (article.enclosure?.url && article.enclosure.type?.startsWith("image/")) {
-        return article.enclosure.url
-      }
-      if (article.enclosure?.["@_url"] && article.enclosure?.["@_type"]?.startsWith("image/")) {
-        return article.enclosure["@_url"]
-      }
-      if (article["media:content"]?.["@_url"] && article["media:content"]?.["@_type"]?.startsWith("image/")) {
-        return article["media:content"]["@_url"]
-      }
-
-      // More careful handling of description parsing
-      const description = article.description
-      if (description && typeof description === 'string') {
-        try {
-          const imgMatch = description.match(/<img[^>]+src="([^"]+)"/)
-          if (imgMatch && imgMatch[1]) {
-            return imgMatch[1]
-          }
-        } catch (e) {
-          console.error('Error parsing description for images:', e)
-        }
-      }
-
-      // If no image found in RSS, try fetching from article
-      if (!fallbackImage) {
-        const response = await fetch(`/api/fetchArticleImage?url=${encodeURIComponent(article.link)}`)
-        const data = await response.json()
-        if (data.imageUrl) {
-          setFallbackImage(data.imageUrl)
-          return data.imageUrl
-        }
-      }
-
-      return fallbackImage || "/placeholder.svg"
-    } catch (error) {
-      console.error('Error in getImageUrl:', error)
-      return "/placeholder.svg"
-    }
-  }
 
   useEffect(() => {
-    //console.log("Current source:", source)
-    getImageUrl().then(url => {
-      //console.log("Debug: getImageUrl resolved with", url)
-      setImageUrl(url)
-    })
-  }, [article.link])
+    let imageSrc = "/placeholder.svg"
+    if (article.enclosure?.url && article.enclosure.type?.startsWith("image/")) {
+      imageSrc = article.enclosure.url
+    } else if (article.enclosure?.["@_url"] && article.enclosure?.["@_type"]?.startsWith("image/")) {
+      imageSrc = article.enclosure["@_url"]
+    } else if (article["media:content"]?.["@_url"] && article["media:content"]?.["@_type"]?.startsWith("image/")) {
+      imageSrc = article["media:content"]["@_url"]
+    }
+    setImageUrl(imageSrc)
+  }, [article])
 
   const decodedTitle = decode(article.title)
   const decodedDescription = typeof article.description === 'string' ? decode(article.description) : ''
@@ -95,12 +54,11 @@ const ArticleCard: FC<ArticleCardProps> = ({ article, source }) => {
       target="_blank"
       rel="noopener noreferrer"
       className="block h-full"
-      ref={cardRef}
     >
       <div className={styles.articleCard_container}>
         <div className={styles.articleCard_imageContainer}>
           <Image
-            src={imageUrl || "/placeholder.svg"}
+            src={imageUrl}
             alt={decodedTitle}
             fill
             className={styles.articleCard_image}
@@ -111,7 +69,7 @@ const ArticleCard: FC<ArticleCardProps> = ({ article, source }) => {
           />
         </div>
         <div className={styles.articleCard_content}>
-          <div className={styles.articleCard_source}>{source}</div> {/* Display source as "Scoop" header */}
+          <div className={styles.articleCard_source}>{source}</div>
           <h3 className={styles.articleCard_title}>
             {decodedTitle}
           </h3>

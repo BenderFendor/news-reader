@@ -25,6 +25,10 @@ interface UseFeedDataResult {
   isDataReady: boolean
 }
 
+// Cache for storing fetched articles
+const articleCache = new Map<string, FeedItem[]>()
+const imageCache = new Map<string, string>()
+
 // Fisher-Yates shuffle algorithm
 function shuffleArray<T>(array: T[]): T[] {
   const shuffled = [...array]
@@ -33,6 +37,24 @@ function shuffleArray<T>(array: T[]): T[] {
     ;[shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]]
   }
   return shuffled
+}
+
+// Function to preload images
+async function preloadImage(url: string): Promise<void> {
+  if (imageCache.has(url)) return
+
+  try {
+    const img = new Image()
+    img.src = url
+    await new Promise((resolve, reject) => {
+      img.onload = resolve
+      img.onerror = reject
+    })
+    imageCache.set(url, url)
+  } catch (error) {
+    console.error(`Failed to preload image: ${url}`, error)
+    imageCache.set(url, '/placeholder.svg')
+  }
 }
 
 export function useFeedData(feeds: { url: string; category: string }[]): UseFeedDataResult {
@@ -47,6 +69,20 @@ export function useFeedData(feeds: { url: string; category: string }[]): UseFeed
     const fetchFeeds = async () => {
       setLoading(true)
       try {
+        // Generate cache key from feed URLs
+        const cacheKey = feeds.map(f => f.url).sort().join(',')
+
+        // Check cache first
+        if (articleCache.has(cacheKey)) {
+          const cachedArticles = articleCache.get(cacheKey)!
+          if (isMounted) {
+            setArticles(cachedArticles)
+            setIsDataReady(true)
+            setLoading(false)
+            return
+          }
+        }
+
         const response = await fetch(`/api/fetchFeeds?feeds=${encodeURIComponent(JSON.stringify(feeds))}`)
         if (!response.ok) {
           throw new Error(`HTTP error! status: ${response.status}`)
@@ -57,10 +93,18 @@ export function useFeedData(feeds: { url: string; category: string }[]): UseFeed
         }
         
         if (isMounted) {
-          // Set articles directly to maintain consistent ordering
+          // Cache the articles
+          articleCache.set(cacheKey, data.items)
           setArticles(data.items)
           setErrors(data.errors || [])
           setIsDataReady(true)
+
+          // Preload images in the background
+          data.items.forEach(async (article: FeedItem) => {
+            if (article.enclosure?.url) {
+              await preloadImage(article.enclosure.url)
+            }
+          })
         }
       } catch (error) {
         console.error("Error fetching feeds:", error)
