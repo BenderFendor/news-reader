@@ -53,7 +53,7 @@ const Article: FC<ArticleProps> = ({ article, isGridView = false, isTikTokStyle 
 
   if (isTikTokStyle) {
     return (
-      <div className="relative w-full h-screen max-w-lg mx-auto bg-white dark:bg-dark-card rounded-lg shadow-xl overflow-hidden">
+      <div className="relative w-full h-[90vh] max-w-lg mx-auto bg-white dark:bg-dark-card rounded-lg shadow-xl overflow-hidden mt-4">
         <Image
           src={imageUrl || "/placeholder.svg"}
           alt={decodedTitle}
@@ -65,18 +65,20 @@ const Article: FC<ArticleProps> = ({ article, isGridView = false, isTikTokStyle 
           }}
         />
         <div className="absolute inset-0 bg-gradient-to-t from-black via-transparent to-transparent z-10" />
-        <div className="absolute bottom-0 left-0 right-0 p-6 z-20 overflow-y-auto max-h-full">
-          <h2 className="text-2xl font-bold text-white mb-2">{decodedTitle}</h2>
-          <p className="text-sm text-gray-200 mb-4 line-clamp-3">{stripHtml(decodedDescription)}</p>
-          <div className="flex justify-between items-center text-xs text-gray-300">
-            <span>{article.source}</span>
-            <span>{new Date(article.pubDate).toLocaleDateString()}</span>
+        <div className="absolute bottom-0 left-0 right-0 p-6 z-20">
+          <div className="space-y-4 mb-16">
+            <h2 className="text-2xl font-bold text-white">{decodedTitle}</h2>
+            <p className="text-sm text-gray-200 line-clamp-3">{stripHtml(decodedDescription)}</p>
+            <div className="flex justify-between items-center text-xs text-gray-300">
+              <span>{article.source}</span>
+              <span>{new Date(article.pubDate).toLocaleDateString()}</span>
+            </div>
           </div>
           <a
             href={article.link}
             target="_blank"
             rel="noopener noreferrer"
-            className="mt-4 inline-block bg-white text-black px-4 py-2 rounded-full text-sm font-medium hover:bg-gray-200 transition-colors"
+            className="absolute bottom-6 left-6 right-6 text-center bg-white text-black px-4 py-2 rounded-full text-sm font-medium hover:bg-gray-200 transition-colors"
           >
             Read more
           </a>

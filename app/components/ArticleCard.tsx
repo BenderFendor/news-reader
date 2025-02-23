@@ -50,38 +50,40 @@ const ArticleCard: FC<ArticleCardProps> = ({ article }) => {
   }
 
   return (
-    <div className="bg-white dark:bg-amoled-card rounded-lg shadow-md overflow-hidden h-full transition-transform duration-300 hover:scale-105">
-      <div className="relative h-40">
-        <Image
-          src={imageUrl || "/placeholder.svg"}
-          alt={decodedTitle}
-          fill
-          className="object-cover"
-          onError={(e) => {
-            const target = e.target as HTMLImageElement
-            target.src = "/placeholder.svg"
-          }}
-        />
-        <div className="absolute top-2 left-2 bg-black/70 backdrop-blur-sm text-white text-xs px-2 py-0.5 rounded">
-          {article.source}
+    <a
+      href={article.link}
+      target="_blank"
+      rel="noopener noreferrer"
+      className="block h-full"
+    >
+      <div className="bg-white dark:bg-amoled-card rounded-lg shadow-md overflow-hidden h-full transition-transform duration-300 hover:scale-105">
+        <div className="relative h-40">
+          <Image
+            src={imageUrl || "/placeholder.svg"}
+            alt={decodedTitle}
+            fill
+            className="object-cover"
+            onError={(e) => {
+              const target = e.target as HTMLImageElement
+              target.src = "/placeholder.svg"
+            }}
+          />
+          <div className="absolute top-2 left-2 bg-black/70 backdrop-blur-sm text-white text-xs px-2 py-0.5 rounded">
+            {article.source}
+          </div>
+        </div>
+        <div className="p-3">
+          <h3 className="text-sm font-semibold mb-2 line-clamp-2">{decodedTitle}</h3>
+          <p className="text-xs text-gray-600 dark:text-gray-300 mb-2 line-clamp-3">{stripHtml(decodedDescription)}</p>
+          <div className="flex justify-between items-center text-xs text-gray-500 dark:text-gray-400">
+            <span>{new Date(article.pubDate).toLocaleDateString()}</span>
+            <span className="text-primary hover:text-primary/80 font-medium">
+              Read more
+            </span>
+          </div>
         </div>
       </div>
-      <div className="p-3">
-        <h3 className="text-sm font-semibold mb-2 line-clamp-2">{decodedTitle}</h3>
-        <p className="text-xs text-gray-600 dark:text-gray-300 mb-2 line-clamp-3">{stripHtml(decodedDescription)}</p>
-        <div className="flex justify-between items-center text-xs text-gray-500 dark:text-gray-400">
-          <span>{new Date(article.pubDate).toLocaleDateString()}</span>
-          <a
-            href={article.link}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="text-primary hover:text-primary/80 font-medium"
-          >
-            Read more
-          </a>
-        </div>
-      </div>
-    </div>
+    </a>
   )
 }
 

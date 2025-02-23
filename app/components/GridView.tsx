@@ -97,7 +97,7 @@ const GridView: FC<GridViewProps> = ({ feeds }) => {
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
         {Object.entries(groupedArticles).map(([category, categoryArticles]) => (
           <div key={category} className="mb-4">
-            <h2 className="text-lg font-bold mb-3 text-gray-800 dark:text-gray-200 border-b border-gray-200 dark:border-gray-700 pb-1">
+            <h2 className="text-lg font-bold mb-3 text-gray-800 dark:text-gray-200">
               {category}
             </h2>
             <div className="h-[660px] overflow-y-auto pr-2 snap-y snap-mandatory scrollbar-thin scrollbar-thumb-gray-300 dark:scrollbar-thumb-gray-700 scrollbar-track-transparent">
