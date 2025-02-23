@@ -1,5 +1,5 @@
 import { type FC } from "react"
-import { useState, useEffect } from "react"
+import { useEffect } from "react"
 import Image from "next/image"
 import { decode } from "html-entities"
 import styles from "./ArticleCard.module.css"
@@ -27,19 +27,16 @@ interface ArticleCardProps {
 }
 
 const ArticleCard: FC<ArticleCardProps> = ({ article, source }) => {
-  const [imageUrl, setImageUrl] = useState<string>("/placeholder.svg")
-
-  useEffect(() => {
-    let imageSrc = "/placeholder.svg"
+  const imageUrl = (() => {
     if (article.enclosure?.url && article.enclosure.type?.startsWith("image/")) {
-      imageSrc = article.enclosure.url
+      return article.enclosure.url;
     } else if (article.enclosure?.["@_url"] && article.enclosure?.["@_type"]?.startsWith("image/")) {
-      imageSrc = article.enclosure["@_url"]
+      return article.enclosure["@_url"];
     } else if (article["media:content"]?.["@_url"] && article["media:content"]?.["@_type"]?.startsWith("image/")) {
-      imageSrc = article["media:content"]["@_url"]
+      return article["media:content"]["@_url"];
     }
-    setImageUrl(imageSrc)
-  }, [article])
+    return "/placeholder.svg";
+  })();
 
   const decodedTitle = decode(article.title)
   const decodedDescription = typeof article.description === 'string' ? decode(article.description) : ''

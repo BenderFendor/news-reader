@@ -30,30 +30,17 @@ interface GridViewProps {
 // Main GridView component with snap scrolling functionality
 const GridView: FC<GridViewProps> = ({ feeds, currentSource, onSourceChange }) => {
   const { articles, errors } = useFeedData(feeds)
-  const [visibleCategory, setVisibleCategory] = useState<string | null>(null)
-
-  useEffect(() => {
-    // Update the source if it changes from the parent
-    if (currentSource !== visibleCategory && currentSource) {
-      setVisibleCategory(currentSource)
-    }
-  }, [currentSource, visibleCategory])
   const sectionRefs = useRef<Map<string, HTMLDivElement>>(new Map())
 
-  // New function to track and log scroll position
-  const handleScroll = (e: React.UIEvent<HTMLDivElement>) => {
-    const container = e.currentTarget
-    const scrollPosition = container.scrollTop
-    const containerHeight = container.clientHeight
+  const [visibleCategory, setVisibleCategory] = useState<string | null>(null);
 
-    // Find which section is most visible
-    sectionRefs.current.forEach((section, category) => {
-      const rect = section.getBoundingClientRect()
-      if (rect.top <= containerHeight/2 && rect.bottom >= containerHeight/2) {
-        console.log("📜 Scrolled to category:", category)
-      }
-    })
-  }
+    useEffect(() => {
+        // Update the source if it changes from the parent
+        if (currentSource !== visibleCategory && currentSource) {
+            setVisibleCategory(currentSource);
+        }
+    }, [currentSource]);
+
 
   // Function to log the category of the section that is scrolled into view
   const logVisibleCategory = (category: string) => {
@@ -69,22 +56,20 @@ const GridView: FC<GridViewProps> = ({ feeds, currentSource, onSourceChange }) =
         // Iterate through each entry and log their visibility ratios for debugging
         entries.forEach((entry) => {
           const category = entry.target.getAttribute("data-category")
-          console.log("Debug: category", category, "ratio", entry.intersectionRatio)  // Debug log
           if (entry.intersectionRatio > maxRatio) {
             maxRatio = entry.intersectionRatio
             mostVisibleCategory = category
           }
         })
-        console.log("Debug: mostVisibleCategory calculated as", mostVisibleCategory, "while currentSource =", currentSource)  // Debug log
         if (mostVisibleCategory && mostVisibleCategory !== visibleCategory) {
-          setVisibleCategory(mostVisibleCategory)
+          setVisibleCategory(mostVisibleCategory);
           onSourceChange && onSourceChange(mostVisibleCategory)
           if (mostVisibleCategory) {
-            logVisibleCategory(mostVisibleCategory)
+            logVisibleCategory(mostVisibleCategory) // Call the new function here
           }
         }
       },
-      { threshold: [0, 0.25, 0.5, 0.75, 1] }
+      { threshold: [0.5] }
     )
 
     sectionRefs.current.forEach((section) => {
@@ -95,7 +80,7 @@ const GridView: FC<GridViewProps> = ({ feeds, currentSource, onSourceChange }) =
       observer.disconnect()
       sectionRefs.current.clear()
     }
-  }, [currentSource, onSourceChange])
+  }, [onSourceChange])
 
   // Handle empty feeds state
   if (feeds.length === 0) {
@@ -140,8 +125,6 @@ const GridView: FC<GridViewProps> = ({ feeds, currentSource, onSourceChange }) =
   return (
     <div 
       className={styles.gridView_container}
-      onScroll={(e) => {
-      }} // Add scroll handler
     >
       {Object.entries(groupedArticles).map(([category, categoryArticles]) => (
         <div

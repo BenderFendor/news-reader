@@ -50,7 +50,7 @@ export default function Home() {
   const [isAddFeedModalOpen, setIsAddFeedModalOpen] = useState(false)
   const [isSourcesListOpen, setIsSourcesListOpen] = useState(false)
   const [feedErrors, setFeedErrors] = useState<FeedError[]>([])
-  const [isLoading, setIsLoading] = useState(false)
+  const [, setIsLoading] = useState(false)
   const [currentSource, setCurrentSource] = useState<string>("All Sources")
 
   useEffect(() => {
@@ -134,9 +134,8 @@ export default function Home() {
         <SourcesList 
           feeds={feeds} 
           onClose={() => setIsSourcesListOpen(false)} 
-          onRemoveFeed={removeFeed} 
+          onRemoveFeed={removeFeed}
           errors={feedErrors}
-          loading={isLoading}
         />
       )}
     </main>
