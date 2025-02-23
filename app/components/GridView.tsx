@@ -30,8 +30,27 @@ interface GridViewProps {
 // Main GridView component with snap scrolling functionality
 const GridView: FC<GridViewProps> = ({ feeds, currentSource, onSourceChange }) => {
   const { articles, errors, loading, isDataReady } = useFeedData(feeds)
-  // Remove containerRef & handleScroll for improved header update reliability
   const sectionRefs = useRef<Map<string, HTMLDivElement>>(new Map())
+
+  // New function to track and log scroll position
+  const handleScroll = (e: React.UIEvent<HTMLDivElement>) => {
+    const container = e.currentTarget
+    const scrollPosition = container.scrollTop
+    const containerHeight = container.clientHeight
+
+    // Find which section is most visible
+    sectionRefs.current.forEach((section, category) => {
+      const rect = section.getBoundingClientRect()
+      if (rect.top <= containerHeight/2 && rect.bottom >= containerHeight/2) {
+        console.log("📜 Scrolled to category:", category)
+      }
+    })
+  }
+
+  // Function to log the category of the section that is scrolled into view
+  const logVisibleCategory = (category: string) => {
+    console.log("Scrolled into view category:", category)
+  }
 
   // Intersection observer useEffect with debug logs
   useEffect(() => {
@@ -51,6 +70,9 @@ const GridView: FC<GridViewProps> = ({ feeds, currentSource, onSourceChange }) =
         console.log("Debug: mostVisibleCategory calculated as", mostVisibleCategory, "while currentSource =", currentSource)  // Debug log
         if (mostVisibleCategory && mostVisibleCategory !== currentSource) {
           onSourceChange && onSourceChange(mostVisibleCategory)
+          if (mostVisibleCategory) {
+            logVisibleCategory(mostVisibleCategory) // Call the new function here
+          }
         }
       },
       { threshold: [0, 0.25, 0.5, 0.75, 1] }
@@ -119,7 +141,11 @@ const GridView: FC<GridViewProps> = ({ feeds, currentSource, onSourceChange }) =
   )
 
   return (
-    <div className={styles.gridView_container}>
+    <div 
+      className={styles.gridView_container}
+      onScroll={(e) => {
+      }} // Add scroll handler
+    >
       {Object.entries(groupedArticles).map(([category, categoryArticles]) => (
         <div
           key={category}

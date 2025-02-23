@@ -75,9 +75,9 @@ const ArticleCard: FC<ArticleCardProps> = ({ article, source }) => {
   }
 
   useEffect(() => {
-    console.log("Current source:", source)
+    //console.log("Current source:", source)
     getImageUrl().then(url => {
-      console.log("Debug: getImageUrl resolved with", url)
+      //console.log("Debug: getImageUrl resolved with", url)
       setImageUrl(url)
     })
   }, [article.link])

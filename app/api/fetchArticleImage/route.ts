@@ -3,8 +3,8 @@ import { parse } from 'node-html-parser'
 
 // Rate limiting configuration
 const RATE_LIMIT_WINDOW = 60 * 1000 // 1 minute
-const RATE_LIMIT_REQUESTS = 100 // increased from 30
-const REQUEST_DELAY = 100 // 100ms delay between requests
+const RATE_LIMIT_REQUESTS = 10 // 10 requests per minute
+const REQUEST_DELAY = 1000 // 1 second delay between requests
 
 // Simple in-memory cache
 const imageCache = new Map<string, { url: string, timestamp: number }>()
@@ -35,7 +35,7 @@ async function fetchWithRateLimit(url: string): Promise<Response> {
 
   return fetch(url, {
     headers: {
-      'User-Agent': 'Mozilla/5.0 (compatible; NewsReader/1.0; +http://yourwebsite.com)'
+      'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36'
     }
   })
 }

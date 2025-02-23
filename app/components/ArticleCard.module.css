@@ -1,5 +1,5 @@
 .articleCard_container {
-  @apply bg-white dark:bg-amoled-card rounded-lg shadow-md overflow-hidden h-full transition-transform duration-300 hover:scale-105;
+  @apply bg-amoled-card rounded-lg shadow-md overflow-hidden h-full transition-transform duration-300 hover:scale-105;
 }
 
 .articleCard_imageContainer {
