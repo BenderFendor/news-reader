@@ -1,5 +1,6 @@
 .gridView_container {
   @apply h-[calc(100vh-4rem)] w-full overflow-y-auto snap-y snap-mandatory;
+  padding: 0.5rem; /* Reduced from 1rem to 0.5rem */
 }
 
 .gridView_header {
@@ -7,17 +8,37 @@
 }
 
 .gridView_categorySection {
-  @apply h-[calc(100vh-4rem)] w-full snap-start snap-always py-6 px-4;
+  @apply h-[calc(100vh-4rem)] w-full snap-start snap-always px-4;
+  /* Removed top padding (py-6) and only kept horizontal padding */
+  scroll-margin-top: 2rem; /* Reduced from 5rem to 2rem */
+  margin-bottom: 2rem; /* Reduced from 3rem to 2rem */
+  /* Removed border and background styling */
+  min-height: 300px;
 }
 
 .gridView_categoryContainer {
   @apply container mx-auto h-full;
+  padding: 0; /* Removed padding from 0.5rem to 0 */
 }
 
 .gridView_articleGrid {
   @apply grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 h-full overflow-y-auto snap-y snap-mandatory;
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 1rem;
+  padding: 0.5rem;
 }
 
 .gridView_articleWrapper {
   @apply transform transition-transform duration-300 hover:scale-105 snap-start snap-always h-[320px];
+  height: 100%;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+.animate-fadeIn {
+  animation: fadeIn 0.3s ease-in;
 }

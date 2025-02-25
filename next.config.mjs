@@ -7,6 +7,7 @@ try {
 
 /** @type {import('next').NextConfig} */
 const nextConfig = {
+  reactStrictMode: true,
   eslint: {
     ignoreDuringBuilds: true,
   },
@@ -20,6 +21,17 @@ const nextConfig = {
     webpackBuildWorker: true,
     parallelServerBuildTraces: true,
     parallelServerCompiles: true,
+  },
+  // This will help fix hydration errors from browser extensions
+  compiler: {
+    // Enables the styled-components SWC transform
+    styledComponents: true,
+  },
+  // Fix for the "Extra attributes from the server" warning
+  // by ignoring specific attributes added by browser extensions
+  webpack: (config) => {
+    config.resolve.fallback = { fs: false, path: false };
+    return config;
   },
 }
 

@@ -26,6 +26,7 @@ export default function RootLayout({
             scroll-behavior: smooth;
           }
         `}</style>
+        <link rel="icon" href="/favicon.ico" sizes="any" />
       </head>
       <body className={`${inter.className} bg-amoled text-gray-100`}>
         {children}
