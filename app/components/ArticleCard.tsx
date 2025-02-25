@@ -1,10 +1,11 @@
-import { type FC } from "react"
-import { useEffect } from "react"
-import Image from "next/image"
-import { decode } from "html-entities"
-import styles from "./ArticleCard.module.css"
+"use client"
 
-interface ArticleCardProps {
+import { useState, useEffect } from "react"
+import { formatDistanceToNow } from "date-fns"
+import styles from "./ArticleCard.module.css"
+import { ImageOffIcon } from "lucide-react"
+
+interface ArticleProps {
   article: {
     title: string
     link: string
@@ -26,56 +27,116 @@ interface ArticleCardProps {
   source: string
 }
 
-const ArticleCard: FC<ArticleCardProps> = ({ article, source }) => {
-  const imageUrl = (() => {
-    if (article.enclosure?.url && article.enclosure.type?.startsWith("image/")) {
-      return article.enclosure.url;
-    } else if (article.enclosure?.["@_url"] && article.enclosure?.["@_type"]?.startsWith("image/")) {
-      return article.enclosure["@_url"];
-    } else if (article["media:content"]?.["@_url"] && article["media:content"]?.["@_type"]?.startsWith("image/")) {
-      return article["media:content"]["@_url"];
+/**
+ * ArticleCard component displays a single article with image and metadata
+ * Optimized for dark theme with improved text contrast
+ */
+const ArticleCard = ({ article, source }: ArticleProps) => {
+  const [imageUrl, setImageUrl] = useState<string | null>(null)
+  const [isLoading, setIsLoading] = useState(true)
+  const [imageError, setImageError] = useState(false)
+  
+  // Format the publication date to relative time (e.g., "2 hours ago")
+  const formattedDate = formatDistanceToNow(new Date(article.pubDate), { addSuffix: true })
+  
+  /**
+   * Extract clean text from HTML in description
+   * Safely handles cases where description might not be a string
+   */
+  const cleanDescription = (() => {
+    // Check if description exists
+    if (!article.description) {
+      return "No description available"
     }
-    return "/placeholder.svg";
-  })();
-
-  const decodedTitle = decode(article.title)
-  const decodedDescription = typeof article.description === 'string' ? decode(article.description) : ''
-
-  const stripHtml = (html: string) => {
-    return html.replace(/<[^>]*>?/gm, "")
-  }
+    
+    // Handle case where description is a string
+    if (typeof article.description === 'string') {
+      return article.description.replace(/<[^>]*>/g, '')
+    }
+    
+    // Handle case where description is an object (might have a toString method)
+    try {
+      const stringValue = String(article.description)
+      return stringValue.replace(/<[^>]*>/g, '')
+    } catch (e) {
+      return "No description available"
+    }
+  })()
+  
+  // Get image from article or fetch from our API
+  useEffect(() => {
+    const getImageForArticle = async () => {
+      setIsLoading(true)
+      
+      // First try to get image from article metadata
+      const mediaUrl = 
+        article.enclosure?.url || 
+        article.enclosure?.["@_url"] || 
+        article["media:content"]?.["@_url"]
+        
+      if (mediaUrl) {
+        setImageUrl(mediaUrl)
+        setIsLoading(false)
+        return
+      }
+      
+      // If no direct image, fetch using our image extraction API
+      try {
+        const response = await fetch(`/api/fetchArticleImage?url=${encodeURIComponent(article.link)}`)
+        const data = await response.json()
+        
+        if (data.imageUrl) {
+          setImageUrl(data.imageUrl)
+        } else {
+          setImageError(true)
+        }
+      } catch (error) {
+        console.error("Error fetching article image:", error)
+        setImageError(true)
+      } finally {
+        setIsLoading(false)
+      }
+    }
+    
+    getImageForArticle()
+  }, [article.enclosure, article.link, article["media:content"]])
 
   return (
-    <a
-      href={article.link}
-      target="_blank"
-      rel="noopener noreferrer"
-      className="block h-full"
-    >
-      <div className={styles.articleCard_container}>
-        <div className={styles.articleCard_imageContainer}>
-          <Image
-            src={imageUrl}
-            alt={decodedTitle}
-            fill
-            className={styles.articleCard_image}
-            onError={(e) => {
-              const target = e.target as HTMLImageElement
-              target.src = "/placeholder.svg"
-            }}
+    <div className={styles.articleCard}>
+      <div className={`${styles.imageContainer} ${isLoading ? styles.loading : ''}`}>
+        {!isLoading && !imageError && imageUrl ? (
+          <img 
+            src={imageUrl} 
+            alt={article.title}
+            className={styles.image}
+            onError={() => setImageError(true)}
           />
-        </div>
-        <div className={styles.articleCard_content}>
-          <div className={styles.articleCard_source}>{source}</div>
-          <h3 className={styles.articleCard_title}>
-            {decodedTitle}
-          </h3>
-          <p className={styles.articleCard_description}>
-            {stripHtml(decodedDescription)}
-          </p>
+        ) : imageError ? (
+          <div className={styles.placeholder}>
+            <ImageOffIcon size={24} className={styles.placeholderIcon} />
+          </div>
+        ) : null}
+      </div>
+      
+      <div className={styles.content}>
+        <h3 className={styles.title}>{article.title}</h3>
+        <p className={styles.description}>{cleanDescription}</p>
+        
+        <div className={styles.metadata}>
+          <span className={styles.source}>{source}</span>
+          <span className={styles.date}>{formattedDate}</span>
         </div>
       </div>
-    </a>
+      
+      {/* Clickable overlay for the entire card */}
+      <a 
+        href={article.link} 
+        target="_blank" 
+        rel="noopener noreferrer" 
+        className={styles.link}
+        aria-label={article.title}
+      />
+    </div>
   )
 }
 
