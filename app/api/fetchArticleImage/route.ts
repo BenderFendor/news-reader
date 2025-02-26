@@ -25,7 +25,7 @@ const CONFIG = {
 }
 
 // Configure route to work with Cloudflare Pages
-// Force-dynamic ensures this route is not statically generated
+// This setting allows the route to be dynamic at runtime but not fail during static build
 export const dynamic = 'force-dynamic'
 // Use edge runtime for better performance on Cloudflare
 export const runtime = 'edge'
@@ -179,17 +179,33 @@ async function extractImageUrl(html: string, url: string): Promise<string | null
 }
 
 /**
+ * Generate a dummy response for build-time static generation
+ * This ensures the build process can complete without errors
+ */
+export async function generateStaticParams() {
+  return []
+}
+
+/**
  * API route handler for fetching article images
- * Modified to work with Cloudflare Pages static export
+ * Modified to work with Cloudflare Pages static export by safely extracting URL parameters
  */
 export async function GET(request: Request) {
   try {
-    // Use a try-catch to handle URL parsing errors
-    const url = new URL(request.url)
-    const articleUrl = url.searchParams.get('url')
+    // Safe URL parsing that won't fail during static generation
+    let articleUrl: string | null = null
+    
+    try {
+      // Only attempt to parse URL parameters at runtime
+      const url = new URL(request.url)
+      articleUrl = url.searchParams.get('url')
+    } catch (parseError) {
+      // During build time, this will fail gracefully
+      console.log('URL parsing skipped during build')
+    }
 
     if (!articleUrl) {
-      return NextResponse.json({ error: 'No URL provided' }, { status: 400 })
+      return NextResponse.json({ error: 'No URL provided', imageUrl: CONFIG.DEFAULT_IMAGE }, { status: 400 })
     }
 
     try {
