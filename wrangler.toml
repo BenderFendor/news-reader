@@ -7,6 +7,11 @@ compatibility_date = "2023-01-01"
 command = "npm run build"
 
 # Specify the output directory for the static build
+# This tells Cloudflare Pages where to find your static files
+pages_build_output_dir = "out"
+
+# The following settings are for Workers functionality
+# These are kept for reference but pages_build_output_dir is what Pages needs
 [site]
 bucket = "out"
 
