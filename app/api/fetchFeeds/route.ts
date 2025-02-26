@@ -2,12 +2,14 @@ import { NextResponse } from "next/server"
 import { XMLParser } from "fast-xml-parser"
 import { decode } from "html-entities"
 
+// These exports ensure the route will be treated as dynamic and not statically generated
+export const dynamic = 'force-dynamic'
+export const runtime = "edge"
+
 const parser = new XMLParser({
   ignoreAttributes: false,
   attributeNamePrefix: "@_",
 })
-
-export const runtime = "edge"
 
 async function fetchRSS(feed: { url: string; category: string }) {
   try {

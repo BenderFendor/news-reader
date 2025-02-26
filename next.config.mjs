@@ -34,8 +34,15 @@ const nextConfig = {
     config.resolve.fallback = { fs: false, path: false };
     return config;
   },
-  // Add output configuration for Cloudflare Pages
-  output: 'export', // Important for static site generation
+  // Output configuration for Cloudflare Pages
+  output: 'export', // Static site generation
+  // Skip validation of dynamic route segments during export
+  // This allows API routes to be included in the build
+  experimental: {
+    outputFileTracingExcludes: {
+      '*': ['./api/**']
+    }
+  }
 }
 
 /**

@@ -24,6 +24,10 @@ const CONFIG = {
   MIN_IMAGE_HEIGHT: 150
 }
 
+// These exports ensure the route will be treated as dynamic and not statically generated
+export const dynamic = 'force-dynamic'
+export const runtime = 'edge'
+
 /**
  * In-memory cache for image URLs to avoid repeated fetches
  * Maps article URL to extracted image URL and timestamp
