@@ -1,14 +1,20 @@
+# This file configures your Cloudflare Pages deployment
 name = "news-reader"
 compatibility_date = "2023-01-01"
 
-# Correctly specify the build output directory for Pages
+# Build configuration
 [build]
 command = "npm run build"
 
+# Specify the output directory for the static build
 [site]
 bucket = "out"
 
-# This is what Pages is looking for
+# Configure Pages to use the correct build output directory
 [build.upload]
 format = "directory"
-pages_build_output_dir = "out"
+dir = "out"
+
+# This is what Pages is looking for
+[build.environment]
+NODE_VERSION = "18"

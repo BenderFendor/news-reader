@@ -36,13 +36,22 @@ const nextConfig = {
   },
   // Output configuration for Cloudflare Pages
   output: 'export', // Static site generation
-  // Skip validation of dynamic route segments during export
-  // This allows API routes to be included in the build
+  
+  // Skip API routes during static export but make them available at runtime
+  // This is the key configuration needed for Cloudflare Pages compatibility
   experimental: {
     outputFileTracingExcludes: {
       '*': ['./api/**']
-    }
-  }
+    },
+    // Allow runtime-only features for Edge API routes
+    serverActions: {
+      bodySizeLimit: '2mb',
+    },
+  },
+  
+  // Disable route validation for API routes during static export
+  distDir: process.env.DIST_DIR || '.next',
+  swcMinify: true,
 }
 
 /**
