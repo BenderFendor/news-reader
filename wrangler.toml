@@ -1,9 +1,14 @@
 name = "news-reader"
 compatibility_date = "2023-01-01"
 
+# Correctly specify the build output directory for Pages
 [build]
 command = "npm run build"
-output_directory = ".next/static"
 
 [site]
-bucket = ".next"
+bucket = "out"
+
+# This is what Pages is looking for
+[build.upload]
+format = "directory"
+pages_build_output_dir = "out"
