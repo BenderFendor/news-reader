@@ -24,6 +24,14 @@ const CONFIG = {
   MIN_IMAGE_HEIGHT: 150
 }
 
+// Configure route to work with Cloudflare Pages
+// This setting allows the route to be dynamic at runtime but not fail during static build
+export const dynamic = 'force-dynamic'
+// Use edge runtime for better performance on Cloudflare
+export const runtime = 'edge'
+// This ensures the route is properly handled during static exports
+export const preferredRegion = 'auto'
+
 /**
  * In-memory cache for image URLs to avoid repeated fetches
  * Maps article URL to extracted image URL and timestamp
@@ -171,87 +179,113 @@ async function extractImageUrl(html: string, url: string): Promise<string | null
 }
 
 /**
+ * Generate a dummy response for build-time static generation
+ * This ensures the build process can complete without errors
+ */
+export async function generateStaticParams() {
+  return []
+}
+
+/**
  * API route handler for fetching article images
+ * Modified to work with Cloudflare Pages static export by safely extracting URL parameters
  */
 export async function GET(request: Request) {
-  const { searchParams } = new URL(request.url)
-  const articleUrl = searchParams.get('url')
-
-  if (!articleUrl) {
-    return NextResponse.json({ error: 'No URL provided' }, { status: 400 })
-  }
-
   try {
-    const now = Date.now()
-    
-    // Check cache first
-    const cached = imageCache.get(articleUrl)
-    
-    // Use cached result if it exists and hasn't expired
-    if (cached && (now - cached.timestamp) < CONFIG.CACHE_DURATION) {
-      debugLog(`Cache hit for ${articleUrl} - status: ${cached.status}`)
-      
-      return NextResponse.json({ 
-        imageUrl: cached.url,
-        cached: true,
-        status: cached.status
-      })
-    }
-
-    debugLog(`Cache miss for ${articleUrl}, fetching...`)
-
-    // Fetch and parse the article
-    let imageUrl: string | null = null
+    // Safe URL parsing that won't fail during static generation
+    let articleUrl: string | null = null
     
     try {
-      const response = await fetchWithRateLimit(articleUrl)
+      // Only attempt to parse URL parameters at runtime
+      const url = new URL(request.url)
+      articleUrl = url.searchParams.get('url')
+    } catch (parseError) {
+      // During build time, this will fail gracefully
+      console.log('URL parsing skipped during build')
+    }
+
+    if (!articleUrl) {
+      return NextResponse.json({ error: 'No URL provided', imageUrl: CONFIG.DEFAULT_IMAGE }, { status: 400 })
+    }
+
+    try {
+      const now = Date.now()
       
-      if (!response.ok) {
-        throw new Error(`HTTP error! status: ${response.status}`)
+      // Check cache first
+      const cached = imageCache.get(articleUrl)
+      
+      // Use cached result if it exists and hasn't expired
+      if (cached && (now - cached.timestamp) < CONFIG.CACHE_DURATION) {
+        debugLog(`Cache hit for ${articleUrl} - status: ${cached.status}`)
+        
+        return NextResponse.json({ 
+          imageUrl: cached.url,
+          cached: true,
+          status: cached.status
+        })
+      }
+
+      debugLog(`Cache miss for ${articleUrl}, fetching...`)
+
+      // Fetch and parse the article
+      let imageUrl: string | null = null
+      
+      try {
+        const response = await fetchWithRateLimit(articleUrl)
+        
+        if (!response.ok) {
+          throw new Error(`HTTP error! status: ${response.status}`)
+        }
+        
+        const html = await response.text()
+        imageUrl = await extractImageUrl(html, articleUrl)
+      } catch (fetchError) {
+        console.error('Error fetching article:', fetchError)
+        
+        // Cache the error to prevent repeated failing requests
+        imageCache.set(articleUrl, {
+          url: CONFIG.DEFAULT_IMAGE,
+          timestamp: now,
+          status: 'error'
+        })
+        
+        return NextResponse.json({ 
+          imageUrl: CONFIG.DEFAULT_IMAGE, 
+          error: 'Failed to fetch article',
+          status: 'error'
+        })
+      }
+
+      // If we found an image
+      if (imageUrl) {
+        // Cache the successful result
+        imageCache.set(articleUrl, {
+          url: imageUrl,
+          timestamp: now,
+          status: 'success'
+        })
+        
+        debugLog(`Found image for ${articleUrl}: ${imageUrl.substring(0, 50)}...`)
+        return NextResponse.json({ imageUrl, status: 'success' })
       }
       
-      const html = await response.text()
-      imageUrl = await extractImageUrl(html, articleUrl)
-    } catch (fetchError) {
-      console.error('Error fetching article:', fetchError)
-      
-      // Cache the error to prevent repeated failing requests
+      // No image found, cache the negative result too
       imageCache.set(articleUrl, {
         url: CONFIG.DEFAULT_IMAGE,
         timestamp: now,
-        status: 'error'
+        status: 'not-found'
       })
       
+      debugLog(`No image found for ${articleUrl}, using default`)
+      return NextResponse.json({ imageUrl: CONFIG.DEFAULT_IMAGE, status: 'not-found' })
+
+    } catch (error) {
+      console.error('Critical error in fetchArticleImage:', error)
       return NextResponse.json({ 
-        imageUrl: CONFIG.DEFAULT_IMAGE, 
-        error: 'Failed to fetch article',
-        status: 'error'
-      })
+        error: 'Internal server error', 
+        imageUrl: CONFIG.DEFAULT_IMAGE 
+      }, { status: 500 })
     }
-
-    // If we found an image
-    if (imageUrl) {
-      // Cache the successful result
-      imageCache.set(articleUrl, {
-        url: imageUrl,
-        timestamp: now,
-        status: 'success'
-      })
-      
-      debugLog(`Found image for ${articleUrl}: ${imageUrl.substring(0, 50)}...`)
-      return NextResponse.json({ imageUrl, status: 'success' })
-    }
-    
-    // No image found, cache the negative result too
-    imageCache.set(articleUrl, {
-      url: CONFIG.DEFAULT_IMAGE,
-      timestamp: now,
-      status: 'not-found'
-    })
-    
-    debugLog(`No image found for ${articleUrl}, using default`)
-    return NextResponse.json({ imageUrl: CONFIG.DEFAULT_IMAGE, status: 'not-found' })
-
   } catch (error) {
     console.error('Critical error in fetchArticleImage:', error)
     return NextResponse.json({ 

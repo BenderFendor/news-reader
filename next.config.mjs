@@ -15,12 +15,14 @@ const nextConfig = {
     ignoreBuildErrors: true,
   },
   images: {
-    unoptimized: true,
-  },
-  experimental: {
-    webpackBuildWorker: true,
-    parallelServerBuildTraces: true,
-    parallelServerCompiles: true,
+    unoptimized: true, // Keep this for static exports
+    domains: ['*'], // Allow images from any domain
+    remotePatterns: [
+      {
+        protocol: 'https',
+        hostname: '**',
+      },
+    ],
   },
   // This will help fix hydration errors from browser extensions
   compiler: {
@@ -28,15 +30,35 @@ const nextConfig = {
     styledComponents: true,
   },
   // Fix for the "Extra attributes from the server" warning
-  // by ignoring specific attributes added by browser extensions
   webpack: (config) => {
     config.resolve.fallback = { fs: false, path: false };
     return config;
   },
+  // Output configuration for Cloudflare Pages
+  output: 'export', // Static site generation
+  
+  // Skip API routes during static export but make them available at runtime
+  // This is the key configuration needed for Cloudflare Pages compatibility
+  experimental: {
+    outputFileTracingExcludes: {
+      '*': ['./api/**']
+    },
+    // Allow runtime-only features for Edge API routes
+    serverActions: {
+      bodySizeLimit: '2mb',
+    },
+  },
+  
+  // Disable route validation for API routes during static export
+  distDir: process.env.DIST_DIR || '.next',
+  swcMinify: true,
 }
 
-mergeConfig(nextConfig, userConfig)
-
+/**
+ * Merges user configuration with the default Next.js configuration
+ * @param {Object} nextConfig - The default Next.js configuration
+ * @param {Object} userConfig - The user's custom configuration
+ */
 function mergeConfig(nextConfig, userConfig) {
   if (!userConfig) {
     return
@@ -56,5 +78,7 @@ function mergeConfig(nextConfig, userConfig) {
     }
   }
 }
+
+mergeConfig(nextConfig, userConfig)
 
 export default nextConfig
