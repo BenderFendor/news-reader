@@ -4,8 +4,8 @@ import { type FC, useEffect, useState, useRef } from "react"
 import { Grid2X2, ScrollText, Plus, List } from "lucide-react"
 
 interface NavigationProps {
-  viewMode: "grid" | "tiktok"
-  setViewMode: (mode: "grid" | "tiktok") => void
+  viewMode: "grid" | "doomscroll"
+  setViewMode: (mode: "grid" | "doomscroll") => void
   openAddFeedModal: () => void
   toggleSourcesList: () => void
   currentSource?: string
@@ -72,9 +72,9 @@ const Navigation: FC<NavigationProps> = ({ viewMode, setViewMode, openAddFeedMod
               <Grid2X2 size={24} />
             </button>
             <button
-              onClick={() => setViewMode("tiktok")}
-              className={`header-view-mode-button p-2 rounded-lg ${viewMode === "tiktok" ? "bg-primary text-primary-foreground" : "hover:bg-accent hover:text-accent-foreground"}`}
-              aria-label="TikTok style view"
+              onClick={() => setViewMode("doomscroll")}
+              className={`header-view-mode-button p-2 rounded-lg ${viewMode === "doomscroll" ? "bg-primary text-primary-foreground" : "hover:bg-accent hover:text-accent-foreground"}`}
+              aria-label="doomscroll style view"
             >
               <ScrollText size={24} />
             </button>

@@ -30,7 +30,7 @@ const NewsFeed: FC<NewsFeedProps> = ({ feeds }) => {
     <div className="snap-y snap-mandatory h-screen overflow-y-scroll bg-gray-100 dark:bg-amoled">
       {articles.map((article, index) => (
         <div key={index} className="snap-start h-screen flex items-center justify-center">
-          <Article article={article} isTikTokStyle />
+          <Article article={article} isDoomScrollStyle />
         </div>
       ))}
     </div>

@@ -4,6 +4,8 @@
 Please use comments to explain each function and how it works and what it does. Use thoughtful variable names.
 Don't remove comments
 
+There is two modes Grid Mode and doomscroll mode doomscroll mode is a tiktok like mode
+
 ## Technology Stack
 
 ### Core Technologies

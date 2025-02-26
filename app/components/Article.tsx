@@ -3,6 +3,7 @@ import { useState, useEffect } from "react"
 import Image from "next/image"
 import { decode } from "html-entities"
 
+// Add documentation for new onUpdateSource callback
 interface ArticleProps {
   article: {
     title: string
@@ -23,7 +24,10 @@ interface ArticleProps {
     category: string
   }
   isGridView?: boolean
-  isTikTokStyle?: boolean
+  isDoomScrollStyle?: boolean
+  isActive?: boolean              // Control active state for doomscroll mode
+  onNavigate?: (direction: 'up' | 'down') => void  // Navigation callback for doomscroll mode
+  onUpdateSource?: (source: string) => void // New callback to update the current source
 }
 
 async function fetchWithRetry(url: string, maxRetries = 3): Promise<Response> {
@@ -49,7 +53,14 @@ async function fetchWithRetry(url: string, maxRetries = 3): Promise<Response> {
 // Add image URL cache at module level
 const imageUrlCache = new Map<string, string>();
 
-const Article: FC<ArticleProps> = ({ article, isGridView = false, isTikTokStyle = false }) => {
+const Article: FC<ArticleProps> = ({ 
+  article, 
+  isGridView = false, 
+  isDoomScrollStyle = false,
+  isActive = false,
+  onNavigate,
+  onUpdateSource  // New prop to update the source
+}) => {
   const [fallbackImage, setFallbackImage] = useState<string | null>(null);
   const [imageUrl, setImageUrl] = useState<string>("/placeholder.svg");
 
@@ -140,6 +151,32 @@ const Article: FC<ArticleProps> = ({ article, isGridView = false, isTikTokStyle 
     }
   }, [article.link, fallbackImage])
 
+  useEffect(() => {
+    if (!isDoomScrollStyle || !isActive) return;
+
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === 'ArrowUp') {
+        e.preventDefault();
+        onNavigate?.('up');
+      } else if (e.key === 'ArrowDown') {
+        e.preventDefault();
+        onNavigate?.('down');
+      }
+    };
+
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [isDoomScrollStyle, isActive, onNavigate]);
+
+  // When in doomscroll mode and the article is active, call onUpdateSource
+  useEffect(() => {
+    if (isDoomScrollStyle && isActive && onUpdateSource) {
+      // Document the purpose of this effect:
+      // This effect updates the source when the doomscroll article becomes active.
+      onUpdateSource(article.source)
+    }
+  }, [isDoomScrollStyle, isActive, article.source, onUpdateSource])
+
   const decodedTitle = decode(article.title)
   const decodedDescription = typeof article.description === 'string' ? decode(article.description) : ''
 
@@ -147,9 +184,9 @@ const Article: FC<ArticleProps> = ({ article, isGridView = false, isTikTokStyle 
     return html.replace(/<[^>]*>?/gm, "")
   }
 
-  if (isTikTokStyle) {
+  if (isDoomScrollStyle) {
     return (
-      <div className="relative w-full h-[90vh] max-w-lg mx-auto bg-white dark:bg-dark-card rounded-lg shadow-xl overflow-hidden mt-4">
+      <div className={`relative w-full h-[90vh] max-w-lg mx-auto bg-white dark:bg-dark-card rounded-lg shadow-xl overflow-hidden mt-4 ${isActive ? 'ring-2 ring-blue-500' : ''}`}>
         <Image
           src={imageUrl || "/placeholder.svg"}
           alt={decodedTitle}
@@ -160,13 +197,27 @@ const Article: FC<ArticleProps> = ({ article, isGridView = false, isTikTokStyle 
             target.src = "/placeholder.svg"
           }}
         />
+        {/* Add top gradient overlay */}
+        <div className="absolute inset-0 bg-gradient-to-b from-black via-transparent to-transparent z-10" />
+        {/* Add bottom gradient overlay */}
         <div className="absolute inset-0 bg-gradient-to-t from-black via-transparent to-transparent z-10" />
+        
+        {/* Add source and category at top */}
+        <div className="absolute top-0 left-0 right-0 p-6 z-20">
+          <div className="flex justify-between items-center text-sm text-gray-200">
+            <span className="font-semibold">{article.source}</span>
+            <span className="px-2 py-1 bg-black bg-opacity-50 rounded-full text-xs">
+              {article.category}
+            </span>
+          </div>
+        </div>
+
+        {/* Bottom content */}
         <div className="absolute bottom-0 left-0 right-0 p-6 z-20">
           <div className="space-y-4 mb-16">
             <h2 className="text-2xl font-bold text-white">{decodedTitle}</h2>
             <p className="text-sm text-gray-200 line-clamp-3">{stripHtml(decodedDescription)}</p>
-            <div className="flex justify-between items-center text-xs text-gray-300">
-              <span>{article.source}</span>
+            <div className="flex justify-end items-center text-xs text-gray-300">
               <span>{new Date(article.pubDate).toLocaleDateString()}</span>
             </div>
           </div>

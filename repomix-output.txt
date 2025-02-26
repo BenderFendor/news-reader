@@ -526,7 +526,7 @@ interface ArticleProps {
     category: string
   }
   isGridView?: boolean
-  isTikTokStyle?: boolean
+  isDoomScrollStyle?: boolean
 }
 
 async function fetchWithRetry(url: string, maxRetries = 3): Promise<Response> {
@@ -552,7 +552,7 @@ async function fetchWithRetry(url: string, maxRetries = 3): Promise<Response> {
 // Add image URL cache at module level
 const imageUrlCache = new Map<string, string>();
 
-const Article: FC<ArticleProps> = ({ article, isGridView = false, isTikTokStyle = false }) => {
+const Article: FC<ArticleProps> = ({ article, isGridView = false, isDoomScrollStyle = false }) => {
   const [fallbackImage, setFallbackImage] = useState<string | null>(null);
   const [imageUrl, setImageUrl] = useState<string>("/placeholder.svg");
 
@@ -650,7 +650,7 @@ const Article: FC<ArticleProps> = ({ article, isGridView = false, isTikTokStyle 
     return html.replace(/<[^>]*>?/gm, "")
   }
 
-  if (isTikTokStyle) {
+  if (isDoomScrollStyle) {
     return (
       <div className="relative w-full h-[90vh] max-w-lg mx-auto bg-white dark:bg-dark-card rounded-lg shadow-xl overflow-hidden mt-4">
         <Image
@@ -1140,8 +1140,8 @@ import { type FC, useEffect, useState } from "react"
 import { Grid2X2, ScrollText, Plus, List } from "lucide-react"
 
 interface NavigationProps {
-  viewMode: "grid" | "tiktok"
-  setViewMode: (mode: "grid" | "tiktok") => void
+  viewMode: "grid" | "doomscroll"
+  setViewMode: (mode: "grid" | "doomscroll") => void
   openAddFeedModal: () => void
   toggleSourcesList: () => void
   currentSource?: string
@@ -1176,9 +1176,9 @@ const Navigation: FC<NavigationProps> = ({ viewMode, setViewMode, openAddFeedMod
               <Grid2X2 size={24} />
             </button>
             <button
-              onClick={() => setViewMode("tiktok")}
-              className={`header-view-mode-button p-2 rounded-lg ${viewMode === "tiktok" ? "bg-primary text-primary-foreground" : "hover:bg-accent hover:text-accent-foreground"}`}
-              aria-label="TikTok style view"
+              onClick={() => setViewMode("doomscroll")}
+              className={`header-view-mode-button p-2 rounded-lg ${viewMode === "doomscroll" ? "bg-primary text-primary-foreground" : "hover:bg-accent hover:text-accent-foreground"}`}
+              aria-label="doomscroll style view"
             >
               <ScrollText size={24} />
             </button>
@@ -1242,7 +1242,7 @@ const NewsFeed: FC<NewsFeedProps> = ({ feeds }) => {
     <div className="snap-y snap-mandatory h-screen overflow-y-scroll bg-gray-100 dark:bg-amoled">
       {articles.map((article, index) => (
         <div key={index} className="snap-start h-screen flex items-center justify-center">
-          <Article article={article} isTikTokStyle />
+          <Article article={article} isDoomScrollStyle />
         </div>
       ))}
     </div>
@@ -1654,7 +1654,7 @@ const inter = Inter({ subsets: ["latin"] })
 
 export const metadata = {
   title: "Scoop",
-  description: "A modern news reader with TikTok-style scroll",
+  description: "A modern news reader with doomscroll-style scroll",
   generator: 'v0.dev'
 }
 
@@ -1733,7 +1733,7 @@ const feed: Feed[] = [
 
 export default function Home() {
   const [feeds, setFeeds] = useState<Feed[]>([])
-  const [viewMode, setViewMode] = useState<"grid" | "tiktok">("grid")
+  const [viewMode, setViewMode] = useState<"grid" | "doomscroll">("grid")
   const [isAddFeedModalOpen, setIsAddFeedModalOpen] = useState(false)
   const [isSourcesListOpen, setIsSourcesListOpen] = useState(false)
   const [feedErrors, setFeedErrors] = useState<FeedError[]>([])

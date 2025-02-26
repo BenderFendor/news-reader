@@ -58,7 +58,7 @@ export default function Home() {
 
   // Main state variables
   const [feeds, setFeeds] = useState<Feed[]>([])
-  const [viewMode, setViewMode] = useState<"grid" | "tiktok">("grid")
+  const [viewMode, setViewMode] = useState<"grid" | "doomscroll">("grid")
   const [isAddFeedModalOpen, setIsAddFeedModalOpen] = useState(false)
   const [isSourcesListOpen, setIsSourcesListOpen] = useState(false)
   const [feedErrors, setFeedErrors] = useState<FeedError[]>([])
