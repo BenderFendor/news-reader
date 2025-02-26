@@ -13,9 +13,25 @@ interface FeedItem {
   category: string
 }
 
+// Custom error types for different failure cases
+class FetchError extends Error {
+  constructor(public status: number, message: string) {
+    super(message)
+    this.name = 'FetchError'
+  }
+}
+
+class APIError extends Error {
+  constructor(public details: unknown) {
+    super(typeof details === 'string' ? details : 'API Error')
+    this.name = 'APIError'
+  }
+}
+
 interface FeedError {
   url: string
   error: string
+  type: 'fetch' | 'api' | 'parse'
 }
 
 interface UseFeedDataResult {
@@ -24,6 +40,10 @@ interface UseFeedDataResult {
   loading: boolean
   isDataReady: boolean
 }
+
+type Result<T, E = Error> = 
+  | { ok: true; value: T }
+  | { ok: false; error: E }
 
 // Cache for storing fetched articles
 const articleCache = new Map<string, FeedItem[]>()
@@ -39,9 +59,11 @@ function shuffleArray<T>(array: T[]): T[] {
   return shuffled
 }
 
-// Function to preload images
-async function preloadImage(url: string): Promise<void> {
-  if (imageCache.has(url)) return
+// Function to preload images with proper error handling
+async function preloadImage(url: string): Promise<Result<string, Error>> {
+  if (imageCache.has(url)) {
+    return { ok: true, value: imageCache.get(url)! }
+  }
 
   try {
     const img = new Image()
@@ -51,9 +73,51 @@ async function preloadImage(url: string): Promise<void> {
       img.onerror = reject
     })
     imageCache.set(url, url)
+    return { ok: true, value: url }
   } catch (error) {
     console.error(`Failed to preload image: ${url}`, error)
     imageCache.set(url, '/placeholder.svg')
+    return { 
+      ok: false, 
+      error: error instanceof Error ? error : new Error(`Failed to load image: ${url}`) 
+    }
+  }
+}
+
+async function fetchFeedData(feeds: { url: string; category: string }[]): Promise<Result<{
+  items: FeedItem[],
+  errors?: FeedError[]
+}, Error>> {
+  try {
+    const response = await fetch(
+      `/api/fetchFeeds?feeds=${encodeURIComponent(JSON.stringify(feeds))}`
+    )
+
+    if (!response.ok) {
+      return {
+        ok: false,
+        error: new FetchError(
+          response.status,
+          `Failed to fetch feeds: ${response.statusText}`
+        )
+      }
+    }
+
+    const data = await response.json()
+
+    if (data.error) {
+      return {
+        ok: false,
+        error: new APIError(data.error)
+      }
+    }
+
+    return { ok: true, value: data }
+  } catch (error) {
+    return {
+      ok: false,
+      error: error instanceof Error ? error : new Error('Unknown error during fetch')
+    }
   }
 }
 
@@ -66,8 +130,9 @@ export function useFeedData(feeds: { url: string; category: string }[]): UseFeed
   useEffect(() => {
     let isMounted = true
 
-    const fetchFeeds = async () => {
+    const processFeedData = async () => {
       setLoading(true)
+      
       try {
         // Generate cache key from feed URLs
         const cacheKey = feeds.map(f => f.url).sort().join(',')
@@ -83,42 +148,51 @@ export function useFeedData(feeds: { url: string; category: string }[]): UseFeed
           }
         }
 
-        const response = await fetch(`/api/fetchFeeds?feeds=${encodeURIComponent(JSON.stringify(feeds))}`)
-        if (!response.ok) {
-          throw new Error(`HTTP error! status: ${response.status}`)
-        }
-        const data = await response.json()
-        if (data.error) {
-          throw new Error(data.error)
-        }
-        
-        if (isMounted) {
-          // Cache the articles
-          articleCache.set(cacheKey, data.items)
-          setArticles(data.items)
-          setErrors(data.errors || [])
-          setIsDataReady(true)
+        const result = await fetchFeedData(feeds)
 
-          // Preload images in the background
-          data.items.forEach(async (article: FeedItem) => {
-            if (article.enclosure?.url) {
-              await preloadImage(article.enclosure.url)
-            }
-          })
+        if (!isMounted) return
+
+        if (!result.ok) {
+          setErrors([{
+            url: 'all',
+            error: result.error.message,
+            type: result.error instanceof FetchError ? 'fetch' : 'api'
+          }])
+          setArticles([])
+          return
         }
+
+        // Cache the articles
+        articleCache.set(cacheKey, result.value.items)
+        setArticles(result.value.items)
+        setErrors(result.value.errors || [])
+        setIsDataReady(true)
+
+        // Preload images in the background
+        result.value.items.forEach(async (article: FeedItem) => {
+          if (article.enclosure?.url) {
+            await preloadImage(article.enclosure.url)
+          }
+        })
       } catch (error) {
-        console.error("Error fetching feeds:", error)
+        if (!isMounted) return
+        
+        console.error("Error in feed data processing:", error)
+        setErrors([{ 
+          url: "all", 
+          error: error instanceof Error ? error.message : "Unknown error",
+          type: 'parse'
+        }])
+        setArticles([])
+      } finally {
         if (isMounted) {
-          setErrors([{ url: "all", error: (error as Error).message }])
+          setLoading(false)
         }
-      }
-      if (isMounted) {
-        setLoading(false)
       }
     }
 
     if (feeds.length > 0) {
-      fetchFeeds()
+      processFeedData()
     }
 
     return () => {

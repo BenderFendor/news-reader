@@ -22,6 +22,10 @@ const nextConfig = {
         protocol: 'https',
         hostname: '**',
       },
+      {
+        protocol: 'http',
+        hostname: '**',
+      },
     ],
   },
   // This will help fix hydration errors from browser extensions
@@ -35,7 +39,7 @@ const nextConfig = {
     return config;
   },
   // Output configuration for Cloudflare Pages
-  output: 'export', // Static site generation
+  output: 'standalone', // Change to server-side rendering for API routes
   
   // Skip API routes during static export but make them available at runtime
   // This is the key configuration needed for Cloudflare Pages compatibility
@@ -52,6 +56,20 @@ const nextConfig = {
   // Disable route validation for API routes during static export
   distDir: process.env.DIST_DIR || '.next',
   swcMinify: true,
+  async headers() {
+    return [
+      {
+        // matching all API routes
+        source: "/api/:path*",
+        headers: [
+          { key: "Access-Control-Allow-Credentials", value: "true" },
+          { key: "Access-Control-Allow-Origin", value: "*" },
+          { key: "Access-Control-Allow-Methods", value: "GET,OPTIONS,DELETE,POST,PUT" },
+          { key: "Access-Control-Allow-Headers", value: "X-CSRF-Token, X-Requested-With, Accept, Accept-Version, Content-Length, Content-MD5, Content-Type, Date, X-Api-Version" },
+        ]
+      }
+    ]
+  },
 }
 
 /**

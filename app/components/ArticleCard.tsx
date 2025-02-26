@@ -2,139 +2,137 @@
 
 import { useState, useEffect } from "react"
 import { formatDistanceToNow } from "date-fns"
-import styles from "./ArticleCard.module.css"
 import { ImageOffIcon } from "lucide-react"
+import styles from "./ArticleCard.module.css"
 
-interface ArticleProps {
-  article: {
-    title: string
-    link: string
-    description: string
-    pubDate: string
-    enclosure?: {
-      url?: string
-      type?: string
-      "@_url"?: string
-      "@_type"?: string
-    }
-    "media:content"?: {
-      "@_url"?: string
-      "@_type"?: string
-    }
-    source: string
-    category: string
-  }
+type MediaContent = {
+  url?: string
+  type?: string
+  "@_url"?: string
+  "@_type"?: string
+}
+
+interface Article {
+  title: string
+  link: string
+  description: string
+  pubDate: string
+  enclosure?: MediaContent
+  "media:content"?: MediaContent
+  source: string
+  category: string
+}
+
+interface ArticleCardProps {
+  article: Article
   source: string
 }
 
+type Result<T> = { success: true; data: T } | { success: false; error: Error }
+
 /**
- * ArticleCard component displays a single article with image and metadata
- * Optimized for dark theme with improved text contrast
+ * ArticleCard displays a news article in a card format optimized for AMOLED displays
+ * @param article - The article data to display
+ * @param source - The source name of the article
  */
-const ArticleCard = ({ article, source }: ArticleProps) => {
-  const [imageUrl, setImageUrl] = useState<string | null>(null)
+const ArticleCard = ({ article, source }: ArticleCardProps) => {
+  const [imageState, setImageState] = useState<Result<string | null>>({ 
+    success: true, 
+    data: null 
+  })
   const [isLoading, setIsLoading] = useState(true)
-  const [imageError, setImageError] = useState(false)
-  
-  // Format the publication date to relative time (e.g., "2 hours ago")
-  const formattedDate = formatDistanceToNow(new Date(article.pubDate), { addSuffix: true })
-  
-  /**
-   * Extract clean text from HTML in description
-   * Safely handles cases where description might not be a string
-   */
+
+  // Extract clean text from HTML description
   const cleanDescription = (() => {
-    // Check if description exists
-    if (!article.description) {
-      return "No description available"
-    }
-    
-    // Handle case where description is a string
-    if (typeof article.description === 'string') {
-      return article.description.replace(/<[^>]*>/g, '')
-    }
-    
-    // Handle case where description is an object (might have a toString method)
+    if (!article.description) return ""
+    const div = document.createElement("div")
+    div.innerHTML = article.description
+    return div.textContent || div.innerText || ""
+  })()
+
+  // Format relative time with graceful fallback
+  const formattedDate = (() => {
     try {
-      const stringValue = String(article.description)
-      return stringValue.replace(/<[^>]*>/g, '')
-    } catch (e) {
-      return "No description available"
+      return formatDistanceToNow(new Date(article.pubDate), { addSuffix: true })
+    } catch {
+      return "Recently"
     }
   })()
-  
-  // Get image from article or fetch from our API
+
   useEffect(() => {
-    const getImageForArticle = async () => {
-      setIsLoading(true)
-      
-      // First try to get image from article metadata
-      const mediaUrl = 
-        article.enclosure?.url || 
-        article.enclosure?.["@_url"] || 
-        article["media:content"]?.["@_url"]
-        
-      if (mediaUrl) {
-        setImageUrl(mediaUrl)
-        setIsLoading(false)
-        return
-      }
-      
-      // If no direct image, fetch using our image extraction API
+    const fetchImage = async () => {
       try {
-        const response = await fetch(`/api/fetchArticleImage?url=${encodeURIComponent(article.link)}`)
-        const data = await response.json()
+        const mediaUrl = article.enclosure?.["@_url"] || 
+                        article.enclosure?.url || 
+                        article["media:content"]?.["@_url"]
         
-        if (data.imageUrl) {
-          setImageUrl(data.imageUrl)
-        } else {
-          setImageError(true)
+        if (!mediaUrl) {
+          setImageState({ success: true, data: null })
+          setIsLoading(false)
+          return
         }
+
+        // Validate image before setting
+        const response = await fetch(mediaUrl)
+        if (!response.ok) throw new Error("Failed to load image")
+        
+        const contentType = response.headers.get("content-type")
+        if (!contentType?.startsWith("image/")) {
+          throw new Error("Invalid image type")
+        }
+
+        setImageState({ success: true, data: mediaUrl })
       } catch (error) {
-        console.error("Error fetching article image:", error)
-        setImageError(true)
+        setImageState({ 
+          success: false, 
+          error: error instanceof Error ? error : new Error("Unknown error") 
+        })
       } finally {
         setIsLoading(false)
       }
     }
-    
-    getImageForArticle()
-  }, [article.enclosure, article.link, article["media:content"]])
+
+    void fetchImage()
+  }, [article])
 
   return (
-    <div className={styles.articleCard}>
-      <div className={`${styles.imageContainer} ${isLoading ? styles.loading : ''}`}>
-        {!isLoading && !imageError && imageUrl ? (
-          <img 
-            src={imageUrl} 
-            alt={article.title}
+    <div className={styles.card}>
+      <div className={styles.imageContainer}>
+        {isLoading ? (
+          <div className={`${styles.imageContainer} ${styles.loading}`} />
+        ) : imageState.success && imageState.data ? (
+          <img
+            src={imageState.data}
+            alt=""
             className={styles.image}
-            onError={() => setImageError(true)}
+            loading="lazy"
+            aria-hidden="true"
           />
-        ) : imageError ? (
+        ) : (
           <div className={styles.placeholder}>
-            <ImageOffIcon size={24} className={styles.placeholderIcon} />
+            <ImageOffIcon className={styles.placeholderIcon} aria-hidden="true" />
           </div>
-        ) : null}
+        )}
       </div>
-      
+
       <div className={styles.content}>
         <h3 className={styles.title}>{article.title}</h3>
         <p className={styles.description}>{cleanDescription}</p>
         
         <div className={styles.metadata}>
           <span className={styles.source}>{source}</span>
-          <span className={styles.date}>{formattedDate}</span>
+          <time className={styles.date} dateTime={article.pubDate}>
+            {formattedDate}
+          </time>
         </div>
       </div>
       
-      {/* Clickable overlay for the entire card */}
       <a 
         href={article.link} 
         target="_blank" 
         rel="noopener noreferrer" 
         className={styles.link}
-        aria-label={article.title}
+        aria-label={`Read full article: ${article.title}`}
       />
     </div>
   )
