@@ -2,8 +2,8 @@
 module.exports = {
   darkMode: ["class"],
   content: [
-    './components/**/*.{ts,tsx}',
-    './app/**/*.{ts,tsx}',
+    './components/**/*.{js,ts,jsx,tsx}', // Added more file extensions for components
+    './app/**/*.{js,ts,jsx,tsx}', // Added more file extensions for app directory
     './src/**/*.{ts,tsx}',
   ],
   prefix: "",
