@@ -1,11 +1,12 @@
 /** @type {import('tailwindcss').Config} */
 module.exports = {
-  darkMode: ["class"],
+  darkMode: 'class',
   content: [
-    './components/**/*.{js,ts,jsx,tsx}', // Added more file extensions for components
-    './app/**/*.{js,ts,jsx,tsx}', // Added more file extensions for app directory
+    './components/**/*.{js,ts,jsx,tsx}',
+    './app/**/*.{js,ts,jsx,tsx}',
     './src/**/*.{ts,tsx}',
-    './app/**/*.css', // Add CSS files to be processed by Tailwind
+    './app/**/*.css',
+    "./pages/**/*.{js,ts,jsx,tsx}"
   ],
   prefix: "",
   theme: {
@@ -51,13 +52,13 @@ module.exports = {
           DEFAULT: "rgb(var(--card) / <alpha-value>)",
           foreground: "rgb(var(--card-foreground) / <alpha-value>)",
         },
-        amoled: {
-          DEFAULT: "#000000",
-          card: "#141414",
-          border: "#1a1a1a",
-          muted: "#141414",
-          hover: "#1a1a1a",
-        },
+        // Restructured amoled colors to be properly accessible in CSS modules
+        'amoled': '#000000',
+        'amoled-card': '#121212',
+        'amoled-border': 'rgba(40, 40, 40, 0.8)',
+        'amoled-muted': '#141414',
+        'amoled-hover': 'rgba(60, 60, 60, 0.8)',
+        black: "#000000",
       },
       borderRadius: {
         lg: "var(--radius)",
@@ -73,15 +74,16 @@ module.exports = {
           from: { height: "var(--radix-accordion-content-height)" },
           to: { height: "0" },
         },
+        fadeIn: {
+          '0%': { opacity: 0, transform: 'translateY(8px)' },
+          '100%': { opacity: 1, transform: 'translateY(0)' },
+        }
       },
       animation: {
         "accordion-down": "accordion-down 0.2s ease-out",
         "accordion-up": "accordion-up 0.2s ease-out",
-      },
-      backgroundColor: {
-        "dark-card": "#141414",
-        "amoled-card": "#141414",  // This is correctly defined here
-      },
+        'fadeIn': 'fadeIn 0.5s ease-out forwards',
+      }
     },
   },
   plugins: [
@@ -89,4 +91,3 @@ module.exports = {
     require("tailwindcss-animate"),
   ],
 };
-

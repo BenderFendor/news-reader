@@ -1,178 +1,116 @@
+/* @reference directives added to ensure Tailwind v4 utilities are available */
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Updated ArticleCard.module.css to use Tailwind CSS utilities via @apply */
+
 .articleCard_container {
-  background-color: rgb(var(--amoled-card));
-  border-radius: 0.5rem;
+  @apply bg-amoled rounded-md overflow-hidden h-full transition-all duration-300 transform scale-105;
+  /* custom box-shadow */
   box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
-  overflow: hidden;
-  height: 100%;
-  transition-property: all;
-  transition-duration: 300ms;
-  transform: scale(1.05);
 }
 
 .articleCard_imageContainer {
-  position: relative;
-  height: 10rem;
+  @apply relative h-40;
 }
 
 .articleCard_image {
-  object-fit: cover;
+  @apply object-cover;
 }
 
 .articleCard_content {
-  padding: 1rem;
+  @apply p-4;
 }
 
 .articleCard_source {
-  font-size: 0.875rem;
-  color: rgb(107 114 128);
-  margin-bottom: 0.5rem;
+  @apply text-sm text-gray-500 mb-2;
 }
 
 .articleCard_title {
-  font-weight: 600;
-  color: rgb(31 41 55);
-  margin-bottom: 0.5rem;
-  display: -webkit-box;
-  -webkit-line-clamp: 2;
-  -webkit-box-orient: vertical;
-  overflow: hidden;
+  @apply font-semibold text-lg mb-2 overflow-hidden line-clamp-2;
+  /* Retaining custom line-height and letter-spacing */
+  line-height: 1.25;
+  letter-spacing: -0.025em;
 }
 
 .articleCard_description {
-  color: rgb(75 85 99);
-  font-size: 0.875rem;
-  display: -webkit-box;
-  -webkit-line-clamp: 3;
-  -webkit-box-orient: vertical;
-  overflow: hidden;
+  @apply text-sm text-gray-500 overflow-hidden line-clamp-3;
+  line-height: 1.625;
 }
 
 .articleCard {
-  display: flex;
-  flex-direction: column;
-  height: 100%;
-  position: relative;
-  overflow: hidden;
-  transition-property: all;
-  transition-duration: 300ms;
-  border-width: 1px;
-  border-color: rgb(var(--amoled-border));
-  background-color: rgb(var(--amoled-card));
-  border-radius: 0.5rem;
-  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+  @apply flex flex-col h-full relative overflow-hidden transition-all duration-300 border bg-amoled-card rounded-md shadow-lg;
+  border-color: rgba(40, 40, 40, 0.8); /* Using direct color value instead of CSS variable */
 }
 
 .articleCard:hover {
-  border-color: rgb(var(--amoled-hover));
-  background-color: rgb(var(--amoled-card));
-  transform: translateY(-2px);
+  @apply translate-y-[-2px];
+  border-color: rgba(60, 60, 60, 0.8); /* Using direct color value instead of CSS variable */
+  /* background-color remains as bg-amoled-card */
 }
 
 .imageContainer {
-  position: relative;
-  width: 100%;
-  overflow: hidden;
+  @apply relative w-full overflow-hidden;
+  /* Maintain aspect ratio */
   aspect-ratio: 16 / 9;
 }
 
 .image {
-  object-fit: cover;
-  width: 100%;
-  height: 100%;
-  transition-property: transform;
-  transition-duration: 300ms;
+  @apply object-cover w-full h-full transition-transform duration-300;
 }
 
 .content {
-  display: flex;
-  flex-direction: column;
-  flex-grow: 1;
-  padding: 1rem;
-  gap: 0.5rem;
+  @apply flex flex-col flex-grow p-4 gap-2;
 }
 
 .title {
-  font-size: 1rem;
-  font-weight: 600;
-  color: #ffffff;
-  display: -webkit-box;
-  -webkit-line-clamp: 2;
-  -webkit-box-orient: vertical;
-  overflow: hidden;
+  @apply text-base font-semibold text-white overflow-hidden line-clamp-2;
   line-height: 1.25;
   letter-spacing: -0.025em;
 }
 
 .description {
-  font-size: 0.875rem;
-  color: rgb(209 213 219);
-  display: -webkit-box;
-  -webkit-line-clamp: 2;
-  -webkit-box-orient: vertical;
-  overflow: hidden;
+  @apply text-sm text-gray-300 overflow-hidden line-clamp-2;
   line-height: 1.625;
 }
 
 .metadata {
-  margin-top: auto;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  font-size: 0.75rem;
-  padding-top: 0.5rem;
-  border-top: 1px solid rgb(var(--amoled-border));
+  @apply mt-auto flex items-center justify-between text-xs pt-2 border-t;
+  border-color: rgba(40, 40, 40, 0.8); /* Using direct color value instead of CSS variable */
 }
 
 .source {
-  padding: 0.25rem 0.5rem;
-  border-radius: 0.375rem;
-  background-color: rgba(0, 0, 0, 0.4);
-  color: rgb(209 213 219);
-  font-weight: 500;
+  @apply px-2 py-1 rounded bg-[rgba(0,0,0,0.4)] text-gray-300 font-medium;
 }
 
 .date {
-  color: rgb(107 114 128);
+  @apply text-gray-500;
 }
 
 .link {
-  position: absolute;
-  inset: 0;
-  z-index: 10;
+  @apply absolute inset-0 z-10;
 }
 
 .link:focus {
-  outline: none;
-  --tw-ring-offset-shadow: var(--tw-ring-inset) 0 0 0 var(--tw-ring-offset-width) var(--tw-ring-offset-color);
-  --tw-ring-shadow: var(--tw-ring-inset) 0 0 0 calc(2px + var(--tw-ring-offset-width)) var(--tw-ring-color);
+  @apply outline-none;
+  /* Custom ring styling */
   box-shadow: var(--tw-ring-offset-shadow), var(--tw-ring-shadow), var(--tw-shadow, 0 0 #0000);
   --tw-ring-color: rgb(6 182 212 / 0.5);
 }
 
-/* Optional hover effect for image */
-.articleCard:hover .image {
-  transform: scale(1.05);
-}
-
-/* Loading state styles */
 .loading {
-  animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
-  background-color: rgb(var(--amoled-card));
+  @apply animate-pulse bg-amoled-card;
 }
 
-/* Placeholder for when image fails to load */
 .placeholder {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  background-color: rgb(var(--amoled-card));
+  @apply flex items-center justify-center bg-amoled-card;
 }
 
 .placeholderIcon {
-  color: rgb(31 41 55);
+  @apply text-gray-800;
 }
 
-/* Animation for card appearance */
 @keyframes fadeIn {
   from { 
     opacity: 0; 
@@ -184,15 +122,6 @@
   }
 }
 
-@keyframes pulse {
-  0%, 100% {
-    opacity: 1;
-  }
-  50% {
-    opacity: .5;
-  }
-}
-
 .card {
-  animation: fadeIn 0.2s ease-out forwards;
+  @apply animate-fadeIn;
 }

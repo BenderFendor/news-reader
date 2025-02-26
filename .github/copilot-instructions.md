@@ -7,7 +7,7 @@
 - Maintain clear documentation for public methods/properties
 - Use descriptive function and variable names
 - Design modular, testable "black box" functions
-- Reference cloudflarepagedoc.md and projectrules.md
+- Reference cloudflarepagedoc.md and projectrules.md and tailwind.md
 - Document new features in doc.md with design philosophy
 
 ## Tech Stack
