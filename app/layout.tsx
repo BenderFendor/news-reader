@@ -6,7 +6,7 @@ const inter = Inter({ subsets: ["latin"] })
 
 export const metadata = {
   title: "Scoop",
-  description: "A modern news reader with TikTok-style scroll",
+  description: "A modern news reader with doomscroll-style scroll",
   generator: 'v0.dev'
 }
 
