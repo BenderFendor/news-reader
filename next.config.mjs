@@ -15,12 +15,14 @@ const nextConfig = {
     ignoreBuildErrors: true,
   },
   images: {
-    unoptimized: true,
-  },
-  experimental: {
-    webpackBuildWorker: true,
-    parallelServerBuildTraces: true,
-    parallelServerCompiles: true,
+    unoptimized: true, // Keep this for static exports
+    domains: ['*'], // Allow images from any domain
+    remotePatterns: [
+      {
+        protocol: 'https',
+        hostname: '**',
+      },
+    ],
   },
   // This will help fix hydration errors from browser extensions
   compiler: {
@@ -28,15 +30,19 @@ const nextConfig = {
     styledComponents: true,
   },
   // Fix for the "Extra attributes from the server" warning
-  // by ignoring specific attributes added by browser extensions
   webpack: (config) => {
     config.resolve.fallback = { fs: false, path: false };
     return config;
   },
+  // Add output configuration for Cloudflare Pages
+  output: 'export', // Important for static site generation
 }
 
-mergeConfig(nextConfig, userConfig)
-
+/**
+ * Merges user configuration with the default Next.js configuration
+ * @param {Object} nextConfig - The default Next.js configuration
+ * @param {Object} userConfig - The user's custom configuration
+ */
 function mergeConfig(nextConfig, userConfig) {
   if (!userConfig) {
     return
@@ -56,5 +62,7 @@ function mergeConfig(nextConfig, userConfig) {
     }
   }
 }
+
+mergeConfig(nextConfig, userConfig)
 
 export default nextConfig
