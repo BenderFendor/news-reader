@@ -3,6 +3,7 @@
 import { type FC, useEffect, useRef, useState, useLayoutEffect } from "react"
 import ArticleCard from "./ArticleCard"
 import { useFeedData } from "@/hooks/use-feed-data"
+import styles from "./GridView.module.css"  // Import the CSS module
 
 // Define interfaces for feed items and component props
 interface FeedItem {

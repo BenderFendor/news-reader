@@ -1,7 +1,7 @@
 /* Converted GridView.module.css to leverage Tailwind utility classes via @apply */
 
 .gridView_container {
-  @apply h-[calc(100vh-4rem)] w-full overflow-y-auto snap-y-mandatory p-2;
+  @apply h-[calc(100vh-4rem)] w-full overflow-y-auto snap-y snap-mandatory p-2;
 }
 
 .gridView_header {

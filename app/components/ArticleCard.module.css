@@ -1,77 +1,63 @@
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
+/* ArticleCard.module.css - Component-specific styles for ArticleCard */
 
-@layer base {
-  :root {
-    --background: 0 0% 0%;      /* Pure black */
-    --foreground: 0 0% 100%;    /* White */
-
-    --card: 0 0% 8%;           /* #141414 */
-    --card-foreground: 0 0% 100%;
-
-    --popover: 0 0% 8%;        /* #141414 */
-    --popover-foreground: 0 0% 100%;
-
-    --primary: 0 0% 100%;      /* White */
-    --primary-foreground: 0 0% 0%;
-
-    --secondary: 0 0% 8%;      /* #141414 */
-    --secondary-foreground: 0 0% 100%;
-
-    --muted: 0 0% 8%;         /* #141414 */
-    --muted-foreground: 0 0% 70%;
-
-    --accent: 0 0% 8%;        /* #141414 */
-    --accent-foreground: 0 0% 100%;
-
-    --destructive: 0 80% 36%;
-    --destructive-foreground: 0 0% 100%;
-
-    --border: 0 0% 10%;       /* #1a1a1a */
-    --input: 0 0% 8%;         /* #141414 */
-    --ring: 0 0% 8%;          /* #141414 */
-
-    --radius: 0.5rem;
-  }
-
-  .dark {
-    --background: #000000;     /* Pure black */
-    --foreground: #FFFFFF;
-
-    --card: #141414;          /* Very dark gray */
-    --card-foreground: #FFFFFF;
-
-    --popover: #141414;
-    --popover-foreground: #FFFFFF;
-
-    --primary: #FFFFFF;
-    --primary-foreground: #000000;
-
-    --secondary: #141414;
-    --secondary-foreground: #FFFFFF;
-
-    --muted: #141414;
-    --muted-foreground: #B3B3B3;
-
-    --accent: #141414;
-    --accent-foreground: #FFFFFF;
-
-    --destructive: #B71C1C;
-    --destructive-foreground: #FFFFFF;
-
-    --border: #1a1a1a;
-    --input: #141414;
-    --ring: #141414;
-  }
+.card {
+  @apply relative flex flex-col bg-black rounded-lg shadow-md overflow-hidden h-full transform transition-all duration-300 hover:scale-[1.02] border border-gray-800;
 }
 
-@layer base {
-  * {
-    @apply border-border;
-  }
-  body {
-    @apply bg-background text-foreground;
-  }
+.imageContainer {
+  @apply relative w-full h-40 overflow-hidden bg-gray-900;
+}
+
+.image {
+  @apply w-full h-full object-cover;
+}
+
+.loading {
+  @apply animate-pulse bg-gray-900;
+}
+
+.placeholder {
+  @apply flex items-center justify-center w-full h-full bg-gray-900;
+}
+
+.placeholderIcon {
+  @apply w-10 h-10 text-gray-600;
+}
+
+.content {
+  @apply flex flex-col flex-grow p-4 bg-black;
+}
+
+.title {
+  @apply text-lg font-semibold text-gray-100 mb-2 line-clamp-2;
+}
+
+.description {
+  @apply text-sm text-gray-400 mb-3 line-clamp-3;
+}
+
+.metadata {
+  @apply flex justify-between items-center mt-auto;
+}
+
+.source {
+  @apply text-xs font-medium text-gray-300 bg-gray-900 px-2 py-1 rounded;
+}
+
+.date {
+  @apply text-xs text-gray-500;
+}
+
+.link {
+  @apply absolute inset-0;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+.animate-fadeIn {
+  animation: fadeIn 0.3s ease-in;
 }
 
