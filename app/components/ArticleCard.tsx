@@ -3,7 +3,6 @@
 import { useState, useEffect } from "react"
 import { formatDistanceToNow } from "date-fns"
 import { ImageOffIcon } from "lucide-react"
-import styles from "./ArticleCard.module.css"
 
 type MediaContent = {
   url?: string

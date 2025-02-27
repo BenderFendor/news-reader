@@ -1,127 +1,77 @@
-/* @reference directives added to ensure Tailwind v4 utilities are available */
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
-/* Updated ArticleCard.module.css to use Tailwind CSS utilities via @apply */
+@layer base {
+  :root {
+    --background: 0 0% 0%;      /* Pure black */
+    --foreground: 0 0% 100%;    /* White */
 
-.articleCard_container {
-  @apply bg-amoled rounded-md overflow-hidden h-full transition-all duration-300 transform scale-105;
-  /* custom box-shadow */
-  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
-}
+    --card: 0 0% 8%;           /* #141414 */
+    --card-foreground: 0 0% 100%;
 
-.articleCard_imageContainer {
-  @apply relative h-40;
-}
+    --popover: 0 0% 8%;        /* #141414 */
+    --popover-foreground: 0 0% 100%;
 
-.articleCard_image {
-  @apply object-cover;
-}
+    --primary: 0 0% 100%;      /* White */
+    --primary-foreground: 0 0% 0%;
 
-.articleCard_content {
-  @apply p-4;
-}
+    --secondary: 0 0% 8%;      /* #141414 */
+    --secondary-foreground: 0 0% 100%;
 
-.articleCard_source {
-  @apply text-sm text-gray-500 mb-2;
-}
+    --muted: 0 0% 8%;         /* #141414 */
+    --muted-foreground: 0 0% 70%;
 
-.articleCard_title {
-  @apply font-semibold text-lg mb-2 overflow-hidden line-clamp-2;
-  /* Retaining custom line-height and letter-spacing */
-  line-height: 1.25;
-  letter-spacing: -0.025em;
-}
+    --accent: 0 0% 8%;        /* #141414 */
+    --accent-foreground: 0 0% 100%;
 
-.articleCard_description {
-  @apply text-sm text-gray-500 overflow-hidden line-clamp-3;
-  line-height: 1.625;
-}
+    --destructive: 0 80% 36%;
+    --destructive-foreground: 0 0% 100%;
 
-.articleCard {
-  @apply flex flex-col h-full relative overflow-hidden transition-all duration-300 border bg-amoled-card rounded-md shadow-lg;
-  border-color: rgba(40, 40, 40, 0.8); /* Using direct color value instead of CSS variable */
-}
+    --border: 0 0% 10%;       /* #1a1a1a */
+    --input: 0 0% 8%;         /* #141414 */
+    --ring: 0 0% 8%;          /* #141414 */
 
-.articleCard:hover {
-  @apply translate-y-[-2px];
-  border-color: rgba(60, 60, 60, 0.8); /* Using direct color value instead of CSS variable */
-  /* background-color remains as bg-amoled-card */
-}
-
-.imageContainer {
-  @apply relative w-full overflow-hidden;
-  /* Maintain aspect ratio */
-  aspect-ratio: 16 / 9;
-}
-
-.image {
-  @apply object-cover w-full h-full transition-transform duration-300;
-}
-
-.content {
-  @apply flex flex-col flex-grow p-4 gap-2;
-}
-
-.title {
-  @apply text-base font-semibold text-white overflow-hidden line-clamp-2;
-  line-height: 1.25;
-  letter-spacing: -0.025em;
-}
-
-.description {
-  @apply text-sm text-gray-300 overflow-hidden line-clamp-2;
-  line-height: 1.625;
-}
-
-.metadata {
-  @apply mt-auto flex items-center justify-between text-xs pt-2 border-t;
-  border-color: rgba(40, 40, 40, 0.8); /* Using direct color value instead of CSS variable */
-}
-
-.source {
-  @apply px-2 py-1 rounded bg-[rgba(0,0,0,0.4)] text-gray-300 font-medium;
-}
-
-.date {
-  @apply text-gray-500;
-}
-
-.link {
-  @apply absolute inset-0 z-10;
-}
-
-.link:focus {
-  @apply outline-none;
-  /* Custom ring styling */
-  box-shadow: var(--tw-ring-offset-shadow), var(--tw-ring-shadow), var(--tw-shadow, 0 0 #0000);
-  --tw-ring-color: rgb(6 182 212 / 0.5);
-}
-
-.loading {
-  @apply animate-pulse bg-amoled-card;
-}
-
-.placeholder {
-  @apply flex items-center justify-center bg-amoled-card;
-}
-
-.placeholderIcon {
-  @apply text-gray-800;
-}
-
-@keyframes fadeIn {
-  from { 
-    opacity: 0; 
-    transform: translateY(8px); 
+    --radius: 0.5rem;
   }
-  to { 
-    opacity: 1; 
-    transform: translateY(0); 
+
+  .dark {
+    --background: #000000;     /* Pure black */
+    --foreground: #FFFFFF;
+
+    --card: #141414;          /* Very dark gray */
+    --card-foreground: #FFFFFF;
+
+    --popover: #141414;
+    --popover-foreground: #FFFFFF;
+
+    --primary: #FFFFFF;
+    --primary-foreground: #000000;
+
+    --secondary: #141414;
+    --secondary-foreground: #FFFFFF;
+
+    --muted: #141414;
+    --muted-foreground: #B3B3B3;
+
+    --accent: #141414;
+    --accent-foreground: #FFFFFF;
+
+    --destructive: #B71C1C;
+    --destructive-foreground: #FFFFFF;
+
+    --border: #1a1a1a;
+    --input: #141414;
+    --ring: #141414;
   }
 }
 
-.card {
-  @apply animate-fadeIn;
+@layer base {
+  * {
+    @apply border-border;
+  }
+  body {
+    @apply bg-background text-foreground;
+  }
 }
+
